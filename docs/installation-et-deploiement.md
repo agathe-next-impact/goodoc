@@ -34,7 +34,7 @@ pnpm install
 Copier le modele et remplir les valeurs :
 
 ```bash
-cp .env.example .env.local
+cp .env.example .env.local   # .env.example se trouve a la racine du repo
 ```
 
 ### Initialiser la base de donnees
@@ -297,6 +297,62 @@ Appliquer les migrations avant le premier deploiement :
 ```bash
 DATABASE_URL=postgresql://... pnpm db:migrate
 ```
+
+#### Integration Neon (pas a pas)
+
+Le driver actuel (`drizzle-orm/postgres-js` + `postgres`, voir `packages/db/src/index.ts`)
+est compatible Neon sans changement de code. Le flag `prepare: false` est deja
+en place, ce qui est requis par le pooler Neon (PgBouncer transaction mode).
+
+1. **Creer le projet Neon**
+   - Region proche du deploiement Vercel (ex. `eu-central-1` pour Frankfurt).
+   - Postgres 16.
+   - Garder la branche `main` pour la prod ; creer une branche `preview` pour les
+     Preview deployments (ou utiliser l'integration Vercel qui cree une branche par PR).
+
+2. **Recuperer deux connection strings**
+   - **Pooled** (pour l'app) — host `...-pooler....neon.tech`. A utiliser dans
+     `DATABASE_URL` sur Vercel.
+   - **Direct / unpooled** (pour les migrations) — host sans `-pooler`. A utiliser
+     pour `drizzle-kit migrate` depuis CI ou local.
+   - Toujours inclure `?sslmode=require`.
+
+3. **Configurer les variables Vercel**
+   ```
+   DATABASE_URL           = <pooled>  --sslmode=require   # scope Production + Preview
+   DATABASE_MIGRATE_URL   = <direct>  --sslmode=require   # utilise en CI uniquement
+   ```
+
+4. **Appliquer migrations + RLS**
+   ```bash
+   # Depuis la machine qui deploie ou un step CI dedie
+   DATABASE_URL="$DATABASE_MIGRATE_URL" pnpm db:migrate
+   psql "$DATABASE_MIGRATE_URL" -f packages/db/rls.sql
+   ```
+
+5. **Rôle applicatif tenant-scoped**
+   Creer le role Postgres utilise par l'app (non-superuser, RLS applique) :
+   ```sql
+   CREATE ROLE medsite_app LOGIN PASSWORD '<strong-password>';
+   GRANT USAGE ON SCHEMA public TO medsite_app;
+   GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO medsite_app;
+   ALTER DEFAULT PRIVILEGES IN SCHEMA public
+     GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO medsite_app;
+   ```
+   Puis utiliser cet utilisateur dans la connection string `DATABASE_URL` (pas le
+   superuser Neon, qui bypasse RLS).
+
+6. **Integration Vercel <-> Neon (optionnel mais recommande)**
+   - Installer l'integration depuis le Marketplace Vercel.
+   - Cree automatiquement `DATABASE_URL` (pooled) et `DATABASE_URL_UNPOOLED` (direct).
+   - Cree une branche Neon isolee par Preview deployment -> aucun risque de polluer la prod.
+
+7. **Option Edge runtime (plus tard, non requis aujourd'hui)**
+   Le middleware `apps/web/src/middleware.ts` est explicitement edge-safe et
+   n'appelle pas la DB — donc le driver `postgres-js` actuel reste valide. Si un
+   jour une route Edge a besoin de query Postgres, basculer vers
+   `@neondatabase/serverless` + `drizzle-orm/neon-serverless` uniquement sur
+   cette route ; garder `postgres-js` pour le reste et les migrations.
 
 ### CRON Jobs (Vercel Cron)
 
