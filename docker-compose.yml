@@ -4,15 +4,15 @@ services:
     container_name: medsite-db
     restart: unless-stopped
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: medsite
+      POSTGRES_USER: ${POSTGRES_USER:-medsite}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required — set it in .env.local}
+      POSTGRES_DB: ${POSTGRES_DB:-medsite}
     ports:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d medsite"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-medsite} -d ${POSTGRES_DB:-medsite}"]
       interval: 5s
       timeout: 5s
       retries: 5
