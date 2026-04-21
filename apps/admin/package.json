@@ -9,6 +9,10 @@
     "lint": "next lint --max-warnings 0",
     "typecheck": "tsc --noEmit",
     "generate:types": "payload generate:types",
+    "payload": "cross-env NODE_OPTIONS=--no-deprecation payload",
+    "payload:migrate:create": "cross-env NODE_OPTIONS=--no-deprecation payload migrate:create",
+    "payload:migrate": "cross-env NODE_OPTIONS=--no-deprecation payload migrate",
+    "payload:migrate:status": "cross-env NODE_OPTIONS=--no-deprecation payload migrate:status",
     "clean": "rimraf .turbo .next"
   },
   "dependencies": {
@@ -18,6 +22,7 @@
     "@medsite/email": "workspace:*",
     "@medsite/types": "workspace:*",
     "@payloadcms/db-postgres": "3.11.0",
+    "@payloadcms/email-resend": "3.11.0",
     "@payloadcms/next": "3.11.0",
     "@payloadcms/richtext-lexical": "3.11.0",
     "@payloadcms/storage-s3": "3.11.0",

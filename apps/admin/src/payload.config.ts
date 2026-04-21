@@ -2,6 +2,7 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import { postgresAdapter } from '@payloadcms/db-postgres'
+import { resendAdapter } from '@payloadcms/email-resend'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import { s3Storage } from '@payloadcms/storage-s3'
 import { buildConfig } from 'payload'
@@ -31,6 +32,7 @@ const databaseUrl =
   process.env.DATABASE_URL ?? 'postgresql://build:build@localhost:5432/build'
 const payloadSecret =
   process.env.PAYLOAD_SECRET ?? 'build-time-placeholder-secret-change-me-please'
+const resendApiKey = process.env.RESEND_API_KEY
 
 export default buildConfig({
   admin: {
@@ -77,6 +79,13 @@ export default buildConfig({
       connectionString: databaseUrl,
     },
   }),
+  email: resendApiKey
+    ? resendAdapter({
+        defaultFromAddress: 'noreply@medsite.fr',
+        defaultFromName: 'MedSite',
+        apiKey: resendApiKey,
+      })
+    : undefined,
   sharp,
   plugins: [
     s3Storage({
