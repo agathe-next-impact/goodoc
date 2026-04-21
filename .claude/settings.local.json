@@ -22,7 +22,8 @@
       "Bash(git branch *)",
       "Bash(openssl rand *)",
       "Bash(npm view *)",
-      "Bash(python -c \"import sys, json; v = json.load\\(sys.stdin\\); print\\(v[-1] if isinstance\\(v, list\\) else v\\)\")"
+      "Bash(python -c \"import sys, json; v = json.load\\(sys.stdin\\); print\\(v[-1] if isinstance\\(v, list\\) else v\\)\")",
+      "Bash(docker exec *)"
     ]
   }
 }

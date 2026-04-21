@@ -96,6 +96,9 @@ importers:
       sass:
         specifier: ^1.99.0
         version: 1.99.0
+      tsx:
+        specifier: ^4.19.2
+        version: 4.21.0
       typescript:
         specifier: ^5.7.3
         version: 5.9.3

@@ -9,10 +9,10 @@
     "lint": "next lint --max-warnings 0",
     "typecheck": "tsc --noEmit",
     "generate:types": "payload generate:types",
-    "payload": "cross-env NODE_OPTIONS=--no-deprecation payload",
-    "payload:migrate:create": "cross-env NODE_OPTIONS=--no-deprecation payload migrate:create",
-    "payload:migrate": "cross-env NODE_OPTIONS=--no-deprecation payload migrate",
-    "payload:migrate:status": "cross-env NODE_OPTIONS=--no-deprecation payload migrate:status",
+    "payload": "cross-env NODE_OPTIONS=\"--no-deprecation --import tsx\" payload",
+    "payload:migrate:create": "cross-env NODE_OPTIONS=\"--no-deprecation --import tsx\" payload migrate:create",
+    "payload:migrate": "cross-env NODE_OPTIONS=\"--no-deprecation --import tsx\" payload migrate",
+    "payload:migrate:status": "cross-env NODE_OPTIONS=\"--no-deprecation --import tsx\" payload migrate:status",
     "clean": "rimraf .turbo .next"
   },
   "dependencies": {
@@ -42,6 +42,7 @@
     "eslint": "^9.18.0",
     "eslint-config-next": "15.5.15",
     "sass": "^1.99.0",
+    "tsx": "^4.19.2",
     "typescript": "^5.7.3"
   }
 }
