@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pnpm --version)",
+      "Bash(git --version)",
+      "Bash(pnpm install:*)",
+      "Bash(pnpm rebuild:*)",
+      "Bash(pnpm typecheck:*)",
+      "Bash(pnpm build:*)",
+      "Bash(pnpm db:generate)",
+      "Bash(pnpm test:*)",
+      "Bash(npx vitest:*)",
+      "Bash(pnpm:*)",
+      "Bash([ -d \"C:/dev/goodoc/apps/$app\" ])",
+      "Bash(grep -r \"\\\\\"eslint\\\\\"\" /c/dev/goodoc/packages/*/package.json /c/dev/goodoc/apps/*/package.json /c/dev/goodoc/package.json)",
+      "Bash(powershell *)",
+      "Bash(taskkill //F //PID 9840)",
+      "Bash(grep -iE '\\\\.\\(env|pem|key|crt|p12|pfx|cert|keystore\\)$|secrets?|credentials')",
+      "Bash(git check-ignore *)"
+    ]
+  }
+}

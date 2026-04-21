@@ -1,0 +1,96 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build outputs
+dist/
+build/
+.next/
+.turbo/
+*.tsbuildinfo
+
+# Env files
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+# Secrets & sensitive data
+*.pem
+*.key
+*.crt
+*.cer
+*.cert
+*.p12
+*.pfx
+*.jks
+*.keystore
+*.asc
+*.gpg
+id_rsa
+id_rsa.*
+id_ed25519
+id_ed25519.*
+known_hosts
+secrets/
+secrets.*
+*.secret
+*secret*.json
+*credentials*.json
+service-account*.json
+gcp-*.json
+aws-credentials
+.aws/
+.npmrc
+.netrc
+auth.json
+
+# Database dumps & backups
+*.sql.gz
+*.dump
+*.bak
+*.backup
+*.sqlite
+*.sqlite3
+*.db
+pg_dump*.sql
+/backups/
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Editors
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Coverage
+coverage/
+*.lcov
+.nyc_output/
+
+# Payload
+/apps/admin/media/
+/apps/admin/.payload/
+
+# Drizzle
+/packages/db/drizzle/meta/
+
+# Playwright
+playwright-report/
+test-results/
+
+# Misc
+.cache/
+.vercel

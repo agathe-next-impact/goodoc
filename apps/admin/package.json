@@ -1,0 +1,42 @@
+{
+  "name": "@medsite/admin",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --port 3001",
+    "build": "next build",
+    "start": "next start --port 3001",
+    "lint": "next lint --max-warnings 0",
+    "typecheck": "tsc --noEmit",
+    "generate:types": "payload generate:types",
+    "clean": "rimraf .turbo .next"
+  },
+  "dependencies": {
+    "@medsite/billing": "workspace:*",
+    "@medsite/config": "workspace:*",
+    "@medsite/db": "workspace:*",
+    "@medsite/email": "workspace:*",
+    "@medsite/types": "workspace:*",
+    "@payloadcms/db-postgres": "3.11.0",
+    "@payloadcms/next": "3.11.0",
+    "@payloadcms/richtext-lexical": "3.11.0",
+    "@payloadcms/storage-s3": "3.11.0",
+    "cross-env": "^7.0.3",
+    "drizzle-orm": "^0.38.4",
+    "graphql": "^16.10.0",
+    "next": "15.1.5",
+    "payload": "3.11.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "sharp": "0.33.5"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.5",
+    "@types/react": "^19.0.4",
+    "@types/react-dom": "^19.0.2",
+    "eslint": "^9.18.0",
+    "eslint-config-next": "15.1.5",
+    "sass": "^1.99.0",
+    "typescript": "^5.7.3"
+  }
+}

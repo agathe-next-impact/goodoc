@@ -1,0 +1,212 @@
+/* ----------------------------------------------------------------
+ * MedSite admin — visual theme
+ *
+ * Keep in sync with the public web app (apps/web/src/app/globals.css)
+ * so practitioners don't feel a brand shift between the two surfaces.
+ *
+ * Design notes:
+ *  - Readable max width (~1400px) centered on wide screens — infinite
+ *    stretch on 4K monitors hurts legibility.
+ *  - Consistent 8px radius, 1.5rem gutter, brand-tinted interactions.
+ *  - Overrides go through Payload's CSS variables whenever possible
+ *    so future upstream tweaks still compose.
+ * ---------------------------------------------------------------- */
+
+/* ================================================================
+ * Design tokens
+ * ================================================================ */
+:root {
+  /* Brand — mirrors `--primary` (HSL 201 96% 32%) on the web app */
+  --medsite-brand: hsl(201 96% 32%);
+  --medsite-brand-hover: hsl(201 96% 26%);
+  --medsite-brand-soft: hsl(201 96% 96%);
+  --medsite-brand-ring: hsla(201, 96%, 32%, 0.25);
+
+  /* Typography */
+  --medsite-font-sans:
+    'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto,
+    'Helvetica Neue', Arial, sans-serif;
+
+  /* Layout */
+  --gutter-h: 1.5rem;
+  --medsite-content-max: 1400px;
+  --medsite-radius: 8px;
+
+  /* Re-point some Payload semantic tokens at the brand so defaults compose */
+  --color-success-500: var(--medsite-brand);
+  --color-success-600: var(--medsite-brand-hover);
+}
+
+[data-theme='dark'] {
+  --medsite-brand: hsl(201 96% 50%);
+  --medsite-brand-hover: hsl(201 96% 60%);
+  --medsite-brand-soft: hsl(201 60% 18%);
+  --medsite-brand-ring: hsla(201, 96%, 50%, 0.35);
+}
+
+/* ================================================================
+ * Base typography
+ * ================================================================ */
+html,
+body {
+  font-family: var(--medsite-font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  letter-spacing: -0.01em;
+}
+
+/* ================================================================
+ * Layout — wide but not infinite
+ * ================================================================ */
+
+/* Center document & list views with a comfortable max width. */
+.template-default__wrap > *,
+.collection-list,
+.dashboard,
+.template-default .render-fields {
+  max-width: var(--medsite-content-max);
+  margin-inline: auto;
+}
+
+/* When a doc has a sidebar, give the main column more horizontal room. */
+.document-fields--has-sidebar {
+  .document-fields__main {
+    width: calc(100% - var(--doc-sidebar-width) - 2rem);
+  }
+}
+
+/* Inputs and select fields should always fill their column. */
+.field-type.text,
+.field-type.email,
+.field-type.number,
+.field-type.textarea,
+.field-type.select,
+.field-type.date {
+  max-width: 100%;
+}
+
+/* ================================================================
+ * Navigation
+ * ================================================================ */
+
+/* Active nav link — brand accent */
+.nav__link--active,
+.nav__link[aria-current='page'] {
+  color: var(--medsite-brand);
+  background: var(--medsite-brand-soft);
+  border-radius: var(--medsite-radius);
+}
+
+.nav__link:hover {
+  color: var(--medsite-brand);
+}
+
+/* ================================================================
+ * Buttons
+ * ================================================================ */
+.btn--style-primary {
+  background: var(--medsite-brand);
+  border-color: var(--medsite-brand);
+  color: #fff;
+  border-radius: var(--medsite-radius);
+  transition: background 0.15s ease, box-shadow 0.15s ease;
+
+  &:hover,
+  &:focus-visible {
+    background: var(--medsite-brand-hover);
+    border-color: var(--medsite-brand-hover);
+  }
+
+  &:focus-visible {
+    box-shadow: 0 0 0 3px var(--medsite-brand-ring);
+    outline: none;
+  }
+}
+
+.btn--style-secondary {
+  border-radius: var(--medsite-radius);
+}
+
+/* ================================================================
+ * Links
+ * ================================================================ */
+a {
+  color: var(--medsite-brand);
+
+  &:hover {
+    color: var(--medsite-brand-hover);
+  }
+}
+
+/* ================================================================
+ * Inputs — subtle polish, brand-tinted focus
+ * ================================================================ */
+input[type='text'],
+input[type='email'],
+input[type='password'],
+input[type='number'],
+input[type='search'],
+input[type='url'],
+textarea,
+.rs__control {
+  border-radius: var(--medsite-radius);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+input:focus-visible,
+textarea:focus-visible,
+.rs__control--is-focused {
+  border-color: var(--medsite-brand) !important;
+  box-shadow: 0 0 0 3px var(--medsite-brand-ring) !important;
+  outline: none;
+}
+
+/* ================================================================
+ * Tables — comfortable row hover
+ * ================================================================ */
+.table tbody tr {
+  transition: background 0.1s ease;
+
+  &:hover {
+    background: var(--medsite-brand-soft);
+  }
+}
+
+/* ================================================================
+ * Cards & surfaces
+ * ================================================================ */
+.card,
+.collapsible__content,
+.tabs-field__tabs,
+.group-field__wrap {
+  border-radius: var(--medsite-radius);
+}
+
+/* ================================================================
+ * Global focus ring (keyboard accessibility)
+ * ================================================================ */
+:focus-visible {
+  outline-color: var(--medsite-brand);
+  outline-offset: 2px;
+}
+
+/* ================================================================
+ * Login screen — center + brand touch
+ * ================================================================ */
+.login {
+  .login__brand {
+    margin-bottom: 2rem;
+  }
+
+  form {
+    border-radius: calc(var(--medsite-radius) * 1.5);
+  }
+}

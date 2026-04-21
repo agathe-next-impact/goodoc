@@ -1,0 +1,27 @@
+{
+  "name": "@medsite/email",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "lint": "eslint src --max-warnings 0",
+    "typecheck": "tsc --noEmit",
+    "clean": "rimraf .turbo dist"
+  },
+  "dependencies": {
+    "resend": "^4.0.1"
+  },
+  "peerDependencies": {
+    "react": "^19.0.0"
+  },
+  "devDependencies": {
+    "@medsite/config": "workspace:*",
+    "@types/react": "^19.0.4",
+    "eslint": "^9.18.0",
+    "react": "^19.0.0",
+    "typescript": "^5.7.3"
+  }
+}

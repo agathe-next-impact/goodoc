@@ -1,0 +1,27 @@
+{
+  "name": "@medsite/billing",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "lint": "eslint src --max-warnings 0",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "setup:stripe": "tsx src/scripts/setup-stripe.ts",
+    "clean": "rimraf .turbo dist"
+  },
+  "dependencies": {
+    "stripe": "^17.5.0"
+  },
+  "devDependencies": {
+    "@medsite/config": "workspace:*",
+    "eslint": "^9.18.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3",
+    "vitest": "^2.1.8"
+  }
+}

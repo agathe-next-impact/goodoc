@@ -1,0 +1,27 @@
+{
+  "name": "@medsite/seo",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "lint": "eslint src --max-warnings 0",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "clean": "rimraf .turbo dist"
+  },
+  "dependencies": {
+    "@medsite/types": "workspace:*",
+    "schema-dts": "^1.1.5"
+  },
+  "devDependencies": {
+    "@medsite/config": "workspace:*",
+    "@types/react": "^19.0.4",
+    "eslint": "^9.18.0",
+    "typescript": "^5.7.3",
+    "vitest": "^2.1.8"
+  }
+}
