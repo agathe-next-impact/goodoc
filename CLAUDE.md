@@ -3,26 +3,28 @@
 ## Project Identity
 
 **Name:** MedSite — Plateforme SaaS de sites web pour professionnels de santé
-**Stack:** Payload CMS 3.x + Next.js 15 (App Router) + PostgreSQL 16 + TypeScript
-**Monorepo:** Turborepo with pnpm workspaces
-**Node:** >=20.x | **pnpm:** >=9.x
+**Stack:** Payload CMS 3.11 + Next.js 15.5 + React 19 + PostgreSQL 16 + TypeScript 5.7
+**Monorepo:** Turborepo 2.x with pnpm 10 workspaces
+**Node:** >=20.x | **pnpm:** >=9.x (repo uses 10.0.0)
+**Deployment docs:** `docs/installation-et-deploiement.md` | **Local DB:** `docker-compose.yml` (Postgres 16)
 
 ## Architecture Overview
 
 ```
 apps/
-  web/              → Next.js 15 frontend (public-facing practitioner sites)
-  admin/            → Payload CMS 3 admin panel (practitioner back-office)
-  platform/         → Super admin dashboard (internal ops)
+  web/              → Next.js 15 public-facing practitioner sites  (port 3003)
+  admin/            → Payload CMS 3 admin panel (practitioner back-office, port 3001)
+  platform/         → Super admin dashboard — internal ops, UI-only,
+                      no direct DB access, port 3002
 packages/
-  db/               → Drizzle ORM schema, migrations, seed
-  config/           → Shared TypeScript, ESLint, Tailwind configs
+  db/               → Drizzle ORM schema, migrations, seed, RLS policies (rls.sql)
+  config/           → Shared TypeScript, ESLint, Tailwind configs + Zod-validated env
   ui/               → Shared React component library (shadcn/ui based)
   seo/              → Schema.org JSON-LD generators, meta helpers
   doctolib/         → Doctolib integration (widget, CTA, fallback logic)
   email/            → React Email templates + Resend integration
-  billing/          → Stripe subscriptions, webhooks, portal
-  analytics/        → Plausible integration + SEO score calculator
+  billing/          → Stripe subscriptions, webhooks, portal, cron jobs
+  analytics/        → ⚠ STUB — Plausible + SEO score planned, not implemented yet
   types/            → Shared TypeScript types & Zod schemas
 ```
 
@@ -41,8 +43,9 @@ packages/
 - All queries go through Drizzle ORM — never raw SQL except in migrations
 - Multi-tenant: every table has a `tenantId` column (except system tables)
 - PostgreSQL Row-Level Security (RLS) enforced at DB level — Drizzle connects with tenant-scoped role
-- Timestamps: `createdAt` and `updatedAt` on every table, `deletedAt` for soft deletes
-- UUIDs (v7) for all primary keys — never auto-increment integers
+- Timestamps: `createdAt` and `updatedAt` on every table (no soft deletes — hard delete only)
+- UUIDs (v7) for all primary keys via `uuidv7` package — never auto-increment integers
+- RLS policies live in `packages/db/rls.sql` (practitioners, addresses, opening_hours, services, pages, etc.)
 
 ### API & Data Flow
 - Server Components by default — Client Components only when interactivity is required
@@ -52,11 +55,17 @@ packages/
 - All data fetching in `lib/queries/` — components never call DB directly
 
 ### Multi-Tenant Resolution
-- Middleware (`middleware.ts`) resolves tenant from hostname on every request
-- Custom domain → lookup in `domains` table → set `x-tenant-id` header
-- Subdomain (slug.medsite.fr) → extract slug → lookup in `tenants` table
+- Middleware at `apps/web/src/middleware.ts` resolves tenant from hostname on every request
+- Custom domain → forwards `x-tenant-custom-domain` header
+- Subdomain (slug.medsite.fr) → forwards `x-tenant-slug-candidate` + `x-tenant-host` headers
 - Admin routes (admin.medsite.fr) → Payload CMS with tenant context from session
 - Tenant context available via `getTenant()` helper in Server Components
+
+### Admin / Payload CMS
+- 11 collections in `apps/admin/src/collections/`: Users, Practitioners, Addresses,
+  OpeningHours, Services, Pages, BlogPosts, ContactMessages, FaqItems, Testimonials, Media
+- Auth handled natively by Payload (session-based) — no next-auth or custom session layer
+- Platform app (`apps/platform`) is UI-only for super admin ops — does NOT hit the DB directly
 
 ### SEO (Critical — Competitive Advantage)
 - Every public page MUST have JSON-LD structured data (see `packages/seo/`)
@@ -74,11 +83,17 @@ packages/
 - iframe MUST include `allowpaymentrequest` attribute
 
 ### Testing
-- Vitest for unit tests, Playwright for E2E
+- Vitest for unit tests, Playwright for E2E (`apps/web/e2e/`: accessibility, multi-tenant, SEO, tenant-site)
 - Test files colocated: `feature.test.ts` next to `feature.ts`
 - Multi-tenant tests: always test with 2+ tenants to verify isolation
 - SEO tests: validate JSON-LD output against schema.org with `schema-dts`
-- Minimum coverage: 80% on `packages/*`, 60% on `apps/*`
+- CI (`.github/workflows/ci.yml`) runs typecheck + lint + unit + E2E against Postgres 16
+- ⚠ No coverage tooling configured yet — don't rely on a threshold, add c8/v8 if needed
+
+### Billing & Cron
+- Stripe integration in `packages/billing/` (service, webhook handler)
+- Cron jobs in `packages/billing/src/cron/`: `trial-expiry.ts`, `payment-retry.ts`
+- Invoke via scheduled runner (not wired to a specific scheduler in-repo — see deploy docs)
 
 ### Security
 - Never log PII (patient names, emails, phone numbers)
@@ -116,7 +131,27 @@ CLOUDFLARE_R2_ACCESS_KEY=...
 CLOUDFLARE_R2_SECRET_KEY=...
 CLOUDFLARE_R2_BUCKET=medsite-media
 CLOUDFLARE_R2_PUBLIC_URL=https://media.medsite.fr
+CLOUDFLARE_R2_ENDPOINT=https://<account>.r2.cloudflarestorage.com
 ```
+
+Full list and Zod schema: `packages/config/src/env.ts`.
+
+### Database host (Neon)
+- Production DB = Neon Postgres 16. Driver stays on `drizzle-orm/postgres-js`
+  (no code change needed — `prepare: false` is already set, which is required
+  by Neon's PgBouncer pooler).
+- `DATABASE_URL` → **pooled** endpoint (`...-pooler....neon.tech`) for the app.
+- Migrations (`pnpm db:migrate`) + `packages/db/rls.sql` run against the
+  **direct / unpooled** endpoint — never the pooled one.
+- App connects as a non-superuser tenant-scoped role so RLS actually applies
+  (superuser bypasses RLS).
+- Vercel ↔ Neon integration auto-provisions a Neon branch per Preview deployment.
+- Full step-by-step: `docs/installation-et-deploiement.md` §5 "Integration Neon".
+
+## i18n
+No i18n framework installed (no `next-intl` / `next-i18next`). Copy is authored
+directly in components (FR primary). If multi-locale is needed later, introduce
+`next-intl` at the app boundary rather than per-package.
 
 ## When Working on This Project
 
@@ -126,3 +161,5 @@ CLOUDFLARE_R2_PUBLIC_URL=https://media.medsite.fr
 4. New public page → add JSON-LD → add to sitemap → add E2E test
 5. Any Doctolib change → test with AND without Doctolib URL configured
 6. Any SEO change → validate with Rich Results Test before merging
+7. New Payload collection → add to `apps/admin/src/collections/` + Drizzle schema + RLS policy
+8. Touching billing cron → update `packages/billing/src/cron/` and verify scheduler wiring in deploy docs

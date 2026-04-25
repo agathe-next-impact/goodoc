@@ -9,7 +9,14 @@
     "lint": "next lint --max-warnings 0",
     "typecheck": "tsc --noEmit",
     "generate:types": "payload generate:types",
+<<<<<<< HEAD
     "generate:importmap": "payload generate:importmap",
+=======
+    "payload": "cross-env NODE_OPTIONS=\"--no-deprecation --import tsx\" payload",
+    "payload:migrate:create": "cross-env NODE_OPTIONS=\"--no-deprecation --import tsx\" payload migrate:create",
+    "payload:migrate": "cross-env NODE_OPTIONS=\"--no-deprecation --import tsx\" payload migrate",
+    "payload:migrate:status": "cross-env NODE_OPTIONS=\"--no-deprecation --import tsx\" payload migrate:status",
+>>>>>>> fd446727045209aef87fae75404cee50ee338cc5
     "clean": "rimraf .turbo .next"
   },
   "dependencies": {
@@ -20,6 +27,7 @@
     "@medsite/templates": "workspace:*",
     "@medsite/types": "workspace:*",
     "@payloadcms/db-postgres": "3.11.0",
+    "@payloadcms/email-resend": "3.11.0",
     "@payloadcms/next": "3.11.0",
     "@payloadcms/richtext-lexical": "3.11.0",
     "@payloadcms/storage-s3": "3.11.0",
@@ -41,6 +49,7 @@
     "eslint": "^9.18.0",
     "eslint-config-next": "15.5.15",
     "sass": "^1.99.0",
+    "tsx": "^4.19.2",
     "typescript": "^5.7.3"
   }
 }

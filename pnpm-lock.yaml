@@ -44,6 +44,9 @@ importers:
       '@payloadcms/db-postgres':
         specifier: 3.11.0
         version: 3.11.0(@types/react@19.2.14)(payload@3.11.0(graphql@16.13.2)(monaco-editor@0.55.1)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(typescript@5.9.3))(postgres@3.4.9)(react@19.2.5)
+      '@payloadcms/email-resend':
+        specifier: 3.11.0
+        version: 3.11.0(payload@3.11.0(graphql@16.13.2)(monaco-editor@0.55.1)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(typescript@5.9.3))
       '@payloadcms/next':
         specifier: 3.11.0
         version: 3.11.0(@types/react@19.2.14)(graphql@16.13.2)(monaco-editor@0.55.1)(next@15.5.15(@playwright/test@1.59.1)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(sass@1.99.0))(payload@3.11.0(graphql@16.13.2)(monaco-editor@0.55.1)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(typescript@5.9.3))(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(typescript@5.9.3)
@@ -102,6 +105,9 @@ importers:
       sass:
         specifier: ^1.99.0
         version: 1.99.0
+      tsx:
+        specifier: ^4.19.2
+        version: 4.21.0
       typescript:
         specifier: ^5.7.3
         version: 5.9.3
@@ -2152,6 +2158,12 @@ packages:
 
   '@payloadcms/drizzle@3.11.0':
     resolution: {integrity: sha512-FhKqhvQAebKRNTJPpu9MPNUlGCnRvBqvSPCVth9iud/P3Fday7zKEmEgFirjLdTM7Ggrz86J3xrrfGgoUFBAgA==}
+    peerDependencies:
+      payload: 3.11.0
+
+  '@payloadcms/email-resend@3.11.0':
+    resolution: {integrity: sha512-K68vJvzw4r2OuwI4aUhNXpptQ2wlXdTapNYLt2OaSsQc2vSNKPzOOvlYRHmB5IZ5K9YExbE1OZZZ7YJ9tmJiEQ==}
+    engines: {node: ^18.20.2 || >=20.9.0}
     peerDependencies:
       payload: 3.11.0
 
@@ -7459,6 +7471,10 @@ snapshots:
       - react
       - sql.js
       - sqlite3
+
+  '@payloadcms/email-resend@3.11.0(payload@3.11.0(graphql@16.13.2)(monaco-editor@0.55.1)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(typescript@5.9.3))':
+    dependencies:
+      payload: 3.11.0(graphql@16.13.2)(monaco-editor@0.55.1)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(typescript@5.9.3)
 
   '@payloadcms/graphql@3.11.0(graphql@16.13.2)(payload@3.11.0(graphql@16.13.2)(monaco-editor@0.55.1)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(typescript@5.9.3))(typescript@5.9.3)':
     dependencies:
