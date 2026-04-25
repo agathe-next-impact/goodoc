@@ -25,9 +25,7 @@ const nextConfig: NextConfig = {
       ...(r2Hostname ? [{ protocol: 'https' as const, hostname: r2Hostname }] : []),
     ],
   },
-  experimental: {
-    typedRoutes: true,
-  },
+  typedRoutes: true,
   async headers() {
     return [
       {

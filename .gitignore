@@ -97,3 +97,6 @@ test-results/
 
 # Template sources (shadcnblocks zips + extractions — non-redistributable)
 .templates-source/
+
+# Claude Code — paramètres locaux non partagés
+.claude/settings.local.json

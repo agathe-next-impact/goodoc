@@ -3,9 +3,13 @@ services:
     image: postgres:16
     container_name: medsite-db
     restart: unless-stopped
+    env_file:
+      # POSTGRES_PASSWORD vient d'ici. Compose interpole `environment:` avant
+      # de lire env_file, donc on ne peut pas exiger la var via `${VAR:?...}`
+      # — il faut la laisser passer par env_file directement vers le conteneur.
+      - .env.local
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-medsite}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required — set it in .env.local}
       POSTGRES_DB: ${POSTGRES_DB:-medsite}
     ports:
       - "5432:5432"

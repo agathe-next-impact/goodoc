@@ -1,165 +1,179 @@
-# CLAUDE.md — MedSite SaaS Platform
+# MedSite — Plateforme SaaS multi-tenant pour professionnels de santé
 
-## Project Identity
+> Ce fichier est chargé automatiquement par Claude Code au démarrage d'une session. Il définit le contexte projet, les conventions et les règles de travail.
+>
+> Sections complétées par `/onboard` le 2026-04-25.
 
-**Name:** MedSite — Plateforme SaaS de sites web pour professionnels de santé
-**Stack:** Payload CMS 3.11 + Next.js 15.5 + React 19 + PostgreSQL 16 + TypeScript 5.7
-**Monorepo:** Turborepo 2.x with pnpm 10 workspaces
-**Node:** >=20.x | **pnpm:** >=9.x (repo uses 10.0.0)
-**Deployment docs:** `docs/installation-et-deploiement.md` | **Local DB:** `docker-compose.yml` (Postgres 16)
+## Domaine
 
-## Architecture Overview
+MedSite (repo `goodoc`) — SaaS qui génère des sites web vitrines pour médecins/professionnels de santé. Multi-tenant (un compte = un site), tenant principal résolu par hostname/sous-domaine. Intégrations Stripe (abonnement), Doctolib (prise de rendez-vous), Cloudflare R2 (médias), Resend (email), Plausible (analytics).
+
+**Sensibilités** : données santé (mention "medical/patient" dans le code), facturation Stripe, multi-tenant strict (RLS Postgres) — toute évolution de schéma DB ou de middleware doit considérer l'isolation tenant.
+
+## Mode de fonctionnement
+
+Ce kit applique par défaut un **mode legacy-friendly** :
+
+1. **Audit = diff courant** par défaut. Les agents ne scannent pas tout le repo sauf demande explicite (`/audit-global`).
+2. **Boy Scout Rule** : le code nouvellement ajouté respecte les conventions cibles. Le code modifié est amélioré localement sans refacto massive. Le code non touché est laissé tranquille.
+3. **Dette technique trackée** : voir `/docs/tech-debt.md`. L'agent `tech-debt-tracker` alimente ce fichier sans forcer les corrections.
+4. **Nouveautés = cible stricte** : tout nouveau fichier, route, endpoint, composant respecte les conventions documentées ici.
+
+## 1. Stack
+
+| Couche | Technologie | Version | Notes |
+| --- | --- | --- | --- |
+| Runtime | Node | `>=20` (CI sur 20) | |
+| Package manager | pnpm | `10.0.0` (workspaces) | |
+| Langage | TypeScript | `5.7.3` | mode strict : **oui** (`strict`, `noUncheckedIndexedAccess`, `noUnusedLocals/Parameters`) |
+| Framework | Next.js | `15.5.15` (App Router, React 19) | 3 apps : `web`, `admin`, `platform` |
+| Styling | Tailwind CSS | `3.4.17` | config partagée via `packages/config/tailwind.config.ts` |
+| CMS / Data | Payload CMS + Drizzle ORM | Payload `3.11.0`, Drizzle `0.38.4` | Payload monté sous `apps/admin` ; `packages/db` expose les schemas Drizzle |
+| Database | PostgreSQL | `16` | RLS activé (`packages/db/rls.sql`), Neon en prod (URL pooled vs direct) |
+| Tests | Vitest + Playwright | Vitest `2.1.8`, Playwright `1.49.1` | E2E dans `apps/web/e2e/`, couverture non mesurée |
+| Monorepo | Turborepo + pnpm workspaces | Turbo `2.3.3` | `apps/*` + `packages/*` |
+| CI | GitHub Actions | `.github/workflows/ci.yml` | typecheck, lint, unit, e2e (Postgres service) |
+| Hosting | Vercel (apps Next) + Neon (DB) + Cloudflare R2 (médias) + Resend (email) | | cf. `globalEnv` dans `turbo.json` |
+
+## 2. Structure du repo
 
 ```
-apps/
-  web/              → Next.js 15 public-facing practitioner sites  (port 3003)
-  admin/            → Payload CMS 3 admin panel (practitioner back-office, port 3001)
-  platform/         → Super admin dashboard — internal ops, UI-only,
-                      no direct DB access, port 3002
-packages/
-  db/               → Drizzle ORM schema, migrations, seed, RLS policies (rls.sql)
-  config/           → Shared TypeScript, ESLint, Tailwind configs + Zod-validated env
-  ui/               → Shared React component library (shadcn/ui based)
-  seo/              → Schema.org JSON-LD generators, meta helpers
-  doctolib/         → Doctolib integration (widget, CTA, fallback logic)
-  email/            → React Email templates + Resend integration
-  billing/          → Stripe subscriptions, webhooks, portal, cron jobs
-  analytics/        → ⚠ STUB — Plausible + SEO score planned, not implemented yet
-  types/            → Shared TypeScript types & Zod schemas
+goodoc/
+├── apps/
+│   ├── admin/          # Payload CMS (port 3001) — back-office, génération de types Payload
+│   ├── platform/       # Espace tenant / dashboard médecin (port 3002)
+│   └── web/            # Front public multi-tenant + marketing (port 3003) — middleware host→tenant
+├── packages/
+│   ├── analytics/      # Plausible wrapper
+│   ├── billing/        # Stripe (abonnement, webhooks)
+│   ├── config/         # tsconfig.base.json, tailwind config, env Zod (env.ts)
+│   ├── db/             # Drizzle schemas, migrations, RLS, seed
+│   ├── doctolib/       # Intégration Doctolib (prise de RDV)
+│   ├── email/          # Resend templates
+│   ├── seo/            # Générateurs schema.org JSON-LD (avantage compétitif principal)
+│   ├── templates/      # Système de blocs/templates pour les sites médecin (Phases 2-8 — voir docs/roadmap/)
+│   ├── types/          # Types partagés ; re-exporte les schemas drizzle-zod depuis @medsite/db
+│   └── ui/             # Composants Goodoc partagés (consommés par web + platform)
+├── docs/
+│   ├── roadmap/        # 22 chantiers du système de templates
+│   ├── audits/ ops/ testing/ releases/ security/ design-system/
+│   ├── tech-debt.md  overlays.md  installation-et-deploiement.md
+│   └── ops/runbook.md
+├── prompts/            # Prompts FR numérotés (workflow : `claude "$(cat prompts/NN-…md)"`)
+├── docker-compose.yml  # Postgres 16 local
+├── turbo.json          # déclare globalEnv (DATABASE_URL, PAYLOAD_SECRET, STRIPE_*, R2_*, …)
+└── pnpm-workspace.yaml
 ```
 
-## Core Conventions
+## 3. Conventions actuelles — à documenter honnêtement
 
-### Code Style
-- TypeScript strict mode everywhere (`"strict": true, "noUncheckedIndexedAccess": true`)
-- Functional components only, no class components
-- Named exports only (no default exports except Next.js pages/layouts)
-- Zod for all runtime validation (API inputs, env vars, form data)
-- Prefer `const` assertions and discriminated unions over enums
-- Error handling: Result pattern (`{ success: true, data } | { success: false, error }`) for all service functions
-- File naming: `kebab-case.ts` for files, `PascalCase` for components, `camelCase` for functions/variables
+### Conventions du projet telles qu'elles sont
 
-### Database
-- All queries go through Drizzle ORM — never raw SQL except in migrations
-- Multi-tenant: every table has a `tenantId` column (except system tables)
-- PostgreSQL Row-Level Security (RLS) enforced at DB level — Drizzle connects with tenant-scoped role
-- Timestamps: `createdAt` and `updatedAt` on every table (no soft deletes — hard delete only)
-- UUIDs (v7) for all primary keys via `uuidv7` package — never auto-increment integers
-- RLS policies live in `packages/db/rls.sql` (practitioners, addresses, opening_hours, services, pages, etc.)
+- **TypeScript mode** : strict full (`strict: true`, `noUncheckedIndexedAccess`, `noUnusedLocals/Parameters`, `noImplicitReturns`). Pas de `declaration: true` dans la base — casse les types inférés `drizzle-zod`.
+- **Style de code** : ESLint flat config par app/package (`eslint.config.mjs`) + `eslint-config-next`. Pas de Prettier explicite, mais Next/ESLint impose le style. `next lint --max-warnings 0` (zéro warning toléré).
+- **Validation** : Zod aux frontières (env validé au boot via `packages/config/src/env.ts`, schemas `drizzle-zod` exposés par `@medsite/types`).
+- **Direction des dépendances** : `@medsite/types` → `@medsite/db` (les types re-exportent les schemas drizzle-zod, pas l'inverse).
+- **Routing tenant** : middleware Next 15 edge-safe — parsing hostname uniquement, lookup DB déféré aux RSC via `getTenant()`. Marketing géré par rewrite vers `/marketing/*` (pas `_marketing` — `_folder` est privé en Next 15).
+- **Commits** : libre, mais récents `fix:`/`feat:` ponctuels. Pas de Conventional Commits enforced. Préfixer quand le changement le mérite.
+- **Branches** : trunk-based (`main` = branche par défaut CI). Pas de git-flow.
+- **Tests** : recommandés mais non bloquants — pas de coverage gate, plusieurs packages sans tests. E2E Playwright sur `apps/web` (chromium + webkit).
 
-### API & Data Flow
-- Server Components by default — Client Components only when interactivity is required
-- Server Actions for mutations (forms, toggles, status changes)
-- `unstable_cache` + `revalidateTag` for data caching — never `fetch` cache headers
-- API routes only for webhooks (Stripe, Doctolib) and external integrations
-- All data fetching in `lib/queries/` — components never call DB directly
+### Conventions cibles (pour tout nouveau code)
 
-### Multi-Tenant Resolution
-- Middleware at `apps/web/src/middleware.ts` resolves tenant from hostname on every request
-- Custom domain → forwards `x-tenant-custom-domain` header
-- Subdomain (slug.medsite.fr) → forwards `x-tenant-slug-candidate` + `x-tenant-host` headers
-- Admin routes (admin.medsite.fr) → Payload CMS with tenant context from session
-- Tenant context available via `getTenant()` helper in Server Components
+- TypeScript strict : zéro `any` en green lines, signatures explicites sur fonctions exportées
+- Validation des données externes via un schema validator (Zod, Valibot, etc.) aux frontières
+- Tests sur tout nouveau flow critique
+- Commits explicites avec message descriptif
+- Accessibilité WCAG 2.2 AA sur composants UI
+- Pas de secret en clair, secrets via variables d'environnement
 
-### Admin / Payload CMS
-- 11 collections in `apps/admin/src/collections/`: Users, Practitioners, Addresses,
-  OpeningHours, Services, Pages, BlogPosts, ContactMessages, FaqItems, Testimonials, Media
-- Auth handled natively by Payload (session-based) — no next-auth or custom session layer
-- Platform app (`apps/platform`) is UI-only for super admin ops — does NOT hit the DB directly
-
-### SEO (Critical — Competitive Advantage)
-- Every public page MUST have JSON-LD structured data (see `packages/seo/`)
-- Schema.org types auto-selected from practitioner specialty mapping
-- `generateMetadata()` in every page.tsx — never hardcoded meta tags
-- Sitemap generated dynamically per tenant via `app/sitemap.ts`
-- All images through `next/image` with explicit `width`, `height`, `alt`
-- Target: Lighthouse 95+ on all 4 categories
-
-### Doctolib Integration
-- Doctolib has NO public API — integration via iframe widget + CTA buttons only
-- Widget URL: `https://www.doctolib.fr/iframe/{slug}`
-- Fallback chain: Doctolib iframe → Doctolib CTA button → Cal.com → Contact form
-- `bookingMode` field computed automatically from available URLs
-- iframe MUST include `allowpaymentrequest` attribute
-
-### Testing
-- Vitest for unit tests, Playwright for E2E (`apps/web/e2e/`: accessibility, multi-tenant, SEO, tenant-site)
-- Test files colocated: `feature.test.ts` next to `feature.ts`
-- Multi-tenant tests: always test with 2+ tenants to verify isolation
-- SEO tests: validate JSON-LD output against schema.org with `schema-dts`
-- CI (`.github/workflows/ci.yml`) runs typecheck + lint + unit + E2E against Postgres 16
-- ⚠ No coverage tooling configured yet — don't rely on a threshold, add c8/v8 if needed
-
-### Billing & Cron
-- Stripe integration in `packages/billing/` (service, webhook handler)
-- Cron jobs in `packages/billing/src/cron/`: `trial-expiry.ts`, `payment-retry.ts`
-- Invoke via scheduled runner (not wired to a specific scheduler in-repo — see deploy docs)
-
-### Security
-- Never log PII (patient names, emails, phone numbers)
-- All env vars validated with Zod at startup (`packages/config/env.ts`)
-- CSRF protection on all mutations
-- Rate limiting on auth endpoints and contact forms
-- CSP headers set in `next.config.ts`
-
-## Key Commands
+## 4. Commandes du projet
 
 ```bash
-pnpm dev              # Start all apps in dev mode
-pnpm build            # Build all packages + apps
-pnpm db:generate      # Generate Drizzle migrations
-pnpm db:migrate       # Run pending migrations
-pnpm db:seed          # Seed dev data (3 tenants, sample content)
-pnpm test             # Run all tests
-pnpm test:e2e         # Run Playwright E2E tests
-pnpm lint             # ESLint + TypeScript check
-pnpm typecheck        # TypeScript only (no emit)
+# Dev (lance les 3 apps Next en parallèle : admin :3001, platform :3002, web :3003)
+pnpm dev
+# Cibler une app : pnpm --filter @medsite/web dev
+
+# DB locale (Postgres 16 via docker-compose, lit .env.local)
+docker compose up -d db
+pnpm db:generate     # Drizzle: génère les migrations depuis le schema
+pnpm db:migrate      # applique les migrations
+pnpm db:seed         # seed dev
+
+# Payload (admin) — types & migrations CMS
+pnpm --filter @medsite/admin generate:types
+pnpm --filter @medsite/admin payload:migrate:create
+pnpm --filter @medsite/admin payload:migrate
+
+# Build
+pnpm build
+
+# Lint / Typecheck (zéro warning toléré côté Next lint)
+pnpm lint
+pnpm typecheck
+
+# Tests
+pnpm test                                 # vitest (unit) — tous packages
+pnpm --filter @medsite/web test:e2e       # playwright (chromium + webkit)
 ```
 
-## Environment Variables
+## 5. Variables d'environnement
 
-Required in `.env.local`:
-```
-DATABASE_URL=postgresql://...
-PAYLOAD_SECRET=...
-NEXT_PUBLIC_APP_URL=https://medsite.fr
-STRIPE_SECRET_KEY=sk_...
-STRIPE_WEBHOOK_SECRET=whsec_...
-RESEND_API_KEY=re_...
-PLAUSIBLE_API_KEY=...
-CLOUDFLARE_R2_ACCESS_KEY=...
-CLOUDFLARE_R2_SECRET_KEY=...
-CLOUDFLARE_R2_BUCKET=medsite-media
-CLOUDFLARE_R2_PUBLIC_URL=https://media.medsite.fr
-CLOUDFLARE_R2_ENDPOINT=https://<account>.r2.cloudflarestorage.com
-```
+Source de vérité : [`.env.example`](.env.example) (validation Zod au boot dans `packages/config/src/env.ts` — process crash si manquant/malformé). Copier vers `.env.local` (gitignored).
 
-Full list and Zod schema: `packages/config/src/env.ts`.
+| Variable | Obligatoire | Notes |
+| --- | --- | --- |
+| `NODE_ENV` | oui | `development` / `production` / `test` |
+| `NEXT_PUBLIC_APP_URL` | oui | URL publique exposée au browser (pas de secret) |
+| `DATABASE_URL` | oui | Postgres 16 local ou Neon **pooled** en prod |
+| `DATABASE_MIGRATE_URL` | prod uniquement | Neon **direct/unpooled** — utilisé seulement par `pnpm db:migrate` et `psql < packages/db/rls.sql`, jamais par l'app |
+| `PAYLOAD_SECRET` | oui | ≥ 32 chars, `openssl rand -hex 32`, ne jamais réutiliser entre envs (rotation invalide les sessions admin) |
+| `STRIPE_SECRET_KEY` / `STRIPE_WEBHOOK_SECRET` | oui | `sk_test_…` en dev, `sk_live_…` en prod ; whsec récupéré au moment de créer le webhook Stripe |
+| `RESEND_API_KEY` | oui | domaine `medsite.fr` doit être validé SPF/DKIM/DMARC dans Resend avant prod |
+| `CLOUDFLARE_R2_ACCESS_KEY` / `_SECRET_KEY` / `_BUCKET` / `_ENDPOINT` / `_PUBLIC_URL` | oui | token R2 scope-bucket ; ⚠ TODO documenté en mémoire : le storage plugin S3 utilise pour l'instant `_PUBLIC_URL` comme endpoint au lieu de `_ENDPOINT` |
+| `PLAUSIBLE_API_KEY` | optionnel | uniquement si `@medsite/analytics` est activé |
+| `CRON_SECRET` | requis dès qu'un endpoint cron (trial-expiry, payment-retry) est exposé | `openssl rand -hex 32` ; Vercel Cron envoie `Authorization: Bearer <…>` |
 
-### Database host (Neon)
-- Production DB = Neon Postgres 16. Driver stays on `drizzle-orm/postgres-js`
-  (no code change needed — `prepare: false` is already set, which is required
-  by Neon's PgBouncer pooler).
-- `DATABASE_URL` → **pooled** endpoint (`...-pooler....neon.tech`) for the app.
-- Migrations (`pnpm db:migrate`) + `packages/db/rls.sql` run against the
-  **direct / unpooled** endpoint — never the pooled one.
-- App connects as a non-superuser tenant-scoped role so RLS actually applies
-  (superuser bypasses RLS).
-- Vercel ↔ Neon integration auto-provisions a Neon branch per Preview deployment.
-- Full step-by-step: `docs/installation-et-deploiement.md` §5 "Integration Neon".
+`turbo.json` déclare ces vars dans `globalEnv` — les ajouter là quand on en introduit une nouvelle, sinon Turbo cache invalide silencieusement.
 
-## i18n
-No i18n framework installed (no `next-intl` / `next-i18next`). Copy is authored
-directly in components (FR primary). If multi-locale is needed later, introduce
-`next-intl` at the app boundary rather than per-package.
+## 6. Règles impératives pour Claude
 
-## When Working on This Project
+1. **Audit = diff courant** par défaut. Audit global uniquement sur `/audit-global`.
+2. **Nouveau code respecte la cible**. Pas de justification "pour rester cohérent avec l'existant".
+3. **Code modifié** : Boy Scout Rule — amélioration locale si faisable sans cascade.
+4. **Ne jamais désactiver silencieusement** un test, un type check, un lint rule pour "faire passer". Toujours expliquer et discuter.
+5. **Dette détectée hors scope** : noter dans `/docs/tech-debt.md`, ne pas bloquer la PR.
+6. **Critical findings** (secret en clair, faille sécurité avérée) : **toujours signalés** même hors scope, même sur code legacy non touché.
+7. **Secrets** : jamais committés, `.env.local` gitignored.
+8. **Commits** : un commit = un changement logique, message clair.
 
-1. Always read the relevant package README before modifying it
-2. Run `pnpm typecheck` before committing — CI will reject type errors
-3. New database fields → create migration → update Zod schema → update types
-4. New public page → add JSON-LD → add to sitemap → add E2E test
-5. Any Doctolib change → test with AND without Doctolib URL configured
-6. Any SEO change → validate with Rich Results Test before merging
-7. New Payload collection → add to `apps/admin/src/collections/` + Drizzle schema + RLS policy
-8. Touching billing cron → update `packages/billing/src/cron/` and verify scheduler wiring in deploy docs
+## 7. Subagents disponibles
+
+Voir `.claude/agents/`. Catégories :
+
+- **engineering** — TypeScript, DevOps, pont framework (overlay)
+- **performance** — Core Web Vitals, bundle, cache
+- **design** — UI, accessibilité, design system
+- **security** — secrets, validation, headers, supply chain
+- **testing** — stratégie de tests, E2E
+- **project-management** — sprint, release, dette technique
+
+## 8. Slash-commands disponibles
+
+- `/onboard` — audit initial, remplissage de ce fichier
+- `/review-pr` — revue multi-agent du diff
+- `/audit-global` — audit global (opt-in, long)
+- `/migrate-pattern` — migration incrémentale d'un pattern hérité vers cible
+- `/release-check` — checklist pré-déploiement
+
+## 9. Ce kit est universel — overlays recommandés
+
+Ce kit est volontairement stack-agnostique. Pour plus de puissance, appliquer un **overlay** dédié à ta stack :
+
+- Astro + Payload
+- Next.js + Payload
+- WordPress Headless + Next.js
+- SaaS santé (HDS, RGPD renforcé, multi-tenant)
+- Etc.
+
+Un overlay ajoute des agents stack-spécifiques (framework, CMS, paiement, multi-tenant) et peut remplacer certains agents universels par leur version spécialisée. Voir `/docs/overlays.md` (sera rempli si un overlay est appliqué).
