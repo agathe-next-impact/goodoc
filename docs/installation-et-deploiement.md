@@ -538,9 +538,6 @@ docker compose logs -f db     # Suivre les logs Postgres
 docker compose exec db psql -U postgres -d medsite
 ```
 
-<<<<<<< HEAD
----
-=======
 #### Integration Neon (pas a pas)
 
 Le driver actuel (`drizzle-orm/postgres-js` + `postgres`, voir `packages/db/src/index.ts`)
@@ -598,7 +595,6 @@ en place, ce qui est requis par le pooler Neon (PgBouncer transaction mode).
    cette route ; garder `postgres-js` pour le reste et les migrations.
 
 ### CRON Jobs (Vercel Cron)
->>>>>>> fd446727045209aef87fae75404cee50ee338cc5
 
 ## 9. Tests et qualité
 
