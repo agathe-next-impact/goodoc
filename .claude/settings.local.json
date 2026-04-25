@@ -22,7 +22,21 @@
       "Bash(git branch *)",
       "Bash(openssl rand *)",
       "Bash(npm view *)",
-      "Bash(python -c \"import sys, json; v = json.load\\(sys.stdin\\); print\\(v[-1] if isinstance\\(v, list\\) else v\\)\")"
+      "Bash(python -c \"import sys, json; v = json.load\\(sys.stdin\\); print\\(v[-1] if isinstance\\(v, list\\) else v\\)\")",
+      "Bash(xxd C:/dev/goodoc/.gitignore)",
+      "Bash(npx payload *)",
+      "Bash(NODE_OPTIONS='--experimental-specifier-resolution=node' npx payload generate:importmap)",
+      "Bash(NODE_OPTIONS=\"--import tsx/esm\" npx payload generate:importmap)",
+      "Bash(grep -oE \"\\\\.app-header[^{,]*\\\\{[^}]*\\\\}\" \"C:/dev/goodoc/node_modules/.pnpm/@payloadcms+ui@3.11.0_@type_a4047e5ad0a126d379923d3658c894f6/node_modules/@payloadcms/ui/dist/styles.css\")",
+      "Bash(find C:/dev/goodoc/node_modules/.pnpm/@payloadcms+next@3.11.0_*/node_modules/@payloadcms/next/dist -name \"Nav*\" -type f)",
+      "Bash(find C:/dev/goodoc/node_modules/.pnpm/@payloadcms+next@3.11.0_*/node_modules/@payloadcms/next/dist -name \"DefaultNav*\" -o -name \"*Nav*.js\")",
+      "PowerShell(Stop-Process *)",
+      "PowerShell(Get-NetTCPConnection *)",
+      "Bash(git -C /c/dev/goodoc log --oneline --all)",
+      "Bash(git -C /c/dev/goodoc log -1 --format=\"%H %s\")",
+      "Bash(git -C /c/dev/goodoc show --stat --oneline)",
+      "Bash(git -C /c/dev/goodoc diff --name-only HEAD~2..HEAD)",
+      "Bash(git -C C:/dev/goodoc log --oneline -10)"
     ]
   }
 }

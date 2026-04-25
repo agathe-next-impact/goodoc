@@ -31,16 +31,18 @@ export const SiteSettings: GlobalConfig = {
             {
               name: 'templateId',
               type: 'select',
-              defaultValue: 'specialist',
+              defaultValue: 'medical-classic',
               label: 'Modèle de site',
               options: [
-                { label: 'Spécialiste', value: 'specialist' },
-                { label: 'Paramédical', value: 'paramedical' },
-                { label: 'Bien-être', value: 'wellness' },
+                { label: 'Medical Classic — bleu sobre, généraliste', value: 'medical-classic' },
+                { label: 'Warm Wellness — chaleureux, paramédical / bien-être', value: 'warm-wellness' },
+                { label: 'Modern Clinic — premium sombre, dentaire / chirurgie', value: 'modern-clinic' },
+                { label: 'Minimal Pro — éditorial noir et blanc, institutionnel', value: 'minimal-pro' },
+                { label: 'Family Practice — vert chaleureux, pédiatrie / famille', value: 'family-practice' },
               ],
               admin: {
                 description:
-                  'Le modèle détermine la mise en page et le style général de votre site.',
+                  'Le modèle détermine la palette, la typographie et la mise en page. Changer de modèle ne modifie pas vos contenus existants.',
               },
             },
             {

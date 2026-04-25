@@ -3,6 +3,7 @@ import 'server-only'
 import {
   blogPosts,
   faqItems,
+  pages,
   services,
   testimonials,
 } from '@medsite/db'
@@ -101,6 +102,29 @@ export async function getPublishedFaqItems(tenantId: string) {
         .orderBy(asc(faqItems.sortOrder)),
     ['faq', tenantId],
     { tags: [`tenant:${tenantId}`], revalidate: 3600 },
+  )()
+}
+
+// ── Pages (template-rendered) ─────────────────────────────────────
+
+export async function getPublishedPageBySlug(tenantId: string, slug: string) {
+  return unstable_cache(
+    async () => {
+      const rows = await db()
+        .select()
+        .from(pages)
+        .where(
+          and(
+            eq(pages.tenantId, tenantId),
+            eq(pages.slug, slug),
+            eq(pages.isPublished, true),
+          ),
+        )
+        .limit(1)
+      return rows[0] ?? null
+    },
+    ['page', tenantId, slug],
+    { tags: [`tenant:${tenantId}`, `pages:${tenantId}`], revalidate: 3600 },
   )()
 }
 

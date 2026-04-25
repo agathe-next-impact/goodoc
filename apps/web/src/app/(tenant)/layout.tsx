@@ -3,11 +3,21 @@ import Script from 'next/script'
 import { notFound, redirect } from 'next/navigation'
 import type { ReactNode } from 'react'
 
+import {
+  defaultTheme,
+  getTemplate,
+  registerBuiltInTemplates,
+  ThemeStyle,
+} from '@medsite/templates'
+
 import { SiteFooter } from '@/components/site-footer'
 import { SiteHeader } from '@/components/site-header'
 import { TenantProvider } from '@/lib/tenant-context'
 import { getTenantOrNull } from '@/lib/tenant'
 import type { TenantSiteSettings } from '@/lib/tenant-types'
+
+// Ensure every built-in template is available when this layout runs.
+registerBuiltInTemplates()
 
 /**
  * Per-request metadata — reuses the same cached tenant fetch as the layout.
@@ -33,15 +43,14 @@ export async function generateViewport(): Promise<Viewport> {
   }
 }
 
-function themeStyle(settings: TenantSiteSettings | null): string {
-  if (!settings) return ''
-  const lines: string[] = [':root {']
-  if (settings.primaryColor) lines.push(`  --tenant-primary: ${settings.primaryColor};`)
-  if (settings.secondaryColor) lines.push(`  --tenant-secondary: ${settings.secondaryColor};`)
-  if (settings.fontHeading) lines.push(`  --tenant-font-heading: "${settings.fontHeading}";`)
-  if (settings.fontBody) lines.push(`  --tenant-font-body: "${settings.fontBody}";`)
-  lines.push('}')
-  return lines.join('\n')
+/**
+ * Picks the template's theme from the registry, or falls back to the baseline
+ * tokens when the tenant's `templateId` is unknown (e.g. legacy `specialist`
+ * value while the new templates are being rolled out).
+ */
+function resolveThemeTokens(settings: TenantSiteSettings | null) {
+  if (!settings?.templateId) return defaultTheme
+  return getTemplate(settings.templateId)?.theme ?? defaultTheme
 }
 
 export default async function TenantLayout({
@@ -63,12 +72,20 @@ export default async function TenantLayout({
     redirect('/suspended')
   }
 
-  const theme = themeStyle(tenant.siteSettings)
+  const themeTokens = resolveThemeTokens(tenant.siteSettings)
+  const themeOverrides = tenant.siteSettings
+    ? {
+        primaryHex: tenant.siteSettings.primaryColor,
+        secondaryHex: tenant.siteSettings.secondaryColor,
+        fontHeading: tenant.siteSettings.fontHeading,
+        fontBody: tenant.siteSettings.fontBody,
+      }
+    : undefined
   const plausibleId = tenant.siteSettings?.plausibleSiteId
 
   return (
     <TenantProvider value={tenant}>
-      {theme ? <style dangerouslySetInnerHTML={{ __html: theme }} /> : null}
+      <ThemeStyle tokens={themeTokens} overrides={themeOverrides} />
       {plausibleId ? (
         <Script
           defer

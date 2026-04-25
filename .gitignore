@@ -94,3 +94,6 @@ test-results/
 # Misc
 .cache/
 .vercel
+
+# Template sources (shadcnblocks zips + extractions — non-redistributable)
+.templates-source/

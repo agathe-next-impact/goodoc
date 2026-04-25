@@ -1,55 +1,113 @@
 /* ----------------------------------------------------------------
  * MedSite admin — visual theme
  *
- * Keep in sync with the public web app (apps/web/src/app/globals.css)
- * so practitioners don't feel a brand shift between the two surfaces.
+ * Sober editorial look (Aspect-inspired): monochrome chrome with a
+ * single high-contrast accent for primary actions, fine borders, and
+ * generous typographic hierarchy. Designed to match the custom
+ * dashboard primitives in `apps/admin/src/components/dashboard/`.
  *
- * Design notes:
- *  - Readable max width (~1400px) centered on wide screens — infinite
- *    stretch on 4K monitors hurts legibility.
- *  - Consistent 8px radius, 1.5rem gutter, brand-tinted interactions.
- *  - Overrides go through Payload's CSS variables whenever possible
- *    so future upstream tweaks still compose.
+ * Strategy: override Payload's official CSS variables (`--theme-*`,
+ * `--color-base-*`, `--color-success-*`, `--style-radius-*`,
+ * `--font-body`) so all of `@payloadcms/ui` picks up the new look
+ * without touching component internals — survives upstream upgrades.
  * ---------------------------------------------------------------- */
 
 /* ================================================================
  * Design tokens
  * ================================================================ */
 :root {
-  /* Brand — mirrors `--primary` (HSL 201 96% 32%) on the web app */
-  --medsite-brand: hsl(201 96% 32%);
-  --medsite-brand-hover: hsl(201 96% 26%);
-  --medsite-brand-soft: hsl(201 96% 96%);
-  --medsite-brand-ring: hsla(201, 96%, 32%, 0.25);
-
-  /* Typography */
-  --medsite-font-sans:
+  /* ── Typography ─────────────────────────────────────────────── */
+  --font-body:
     'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto,
     'Helvetica Neue', Arial, sans-serif;
 
-  /* Layout */
+  /* ── Layout ─────────────────────────────────────────────────── */
   --gutter-h: 1.5rem;
-  --medsite-content-max: 1400px;
+  --medsite-content-max: 1200px;
+
+  /* Payload normally sets `--nav-width` via JS once the nav hydrates. Our
+   * custom <MedSiteNav> never triggers that hook, so we provide a default
+   * here — otherwise `grid-template-columns: var(--nav-width) auto` is
+   * invalid and the layout collapses to a single column with the sidebar
+   * spanning full width. */
+  --nav-width: 260px;
+
+  /* ── Radius — slightly tighter than Payload defaults ───────── */
+  --style-radius-s: 4px;
+  --style-radius-m: 6px;
+  --style-radius-l: 8px;
   --medsite-radius: 8px;
 
-  /* Re-point some Payload semantic tokens at the brand so defaults compose */
-  --color-success-500: var(--medsite-brand);
-  --color-success-600: var(--medsite-brand-hover);
+  /* ── Accent — neutral noir/blanc rather than vivid blue.
+   *  The base `--theme-text` / `--theme-bg` already provide the
+   *  highest contrast pair; we re-route Payload's "success" tokens
+   *  (used by the primary button) onto them so primary actions
+   *  match the custom dashboard buttons. */
+  --color-success-500: #111827;   /* near-black */
+  --color-success-600: #000000;
+  --color-success-700: #000000;
+  --color-success-100: rgba(17, 24, 39, 0.06);
+
+  /* ── Subtle medical blue, kept for badges / links only ─────── */
+  --medsite-link: #1d4ed8;
+  --medsite-link-hover: #1e3a8a;
+  --medsite-focus-ring: rgba(17, 24, 39, 0.18);
+
+  /* ── Cool-grey elevation scale (slightly cooler than default) ─ */
+  --theme-elevation-0:  #ffffff;
+  --theme-elevation-50:  #f8fafc;
+  --theme-elevation-100: #f1f5f9;
+  --theme-elevation-150: #e8ecf2;
+  --theme-elevation-200: #e2e8f0;
+  --theme-elevation-250: #d3dbe5;
+  --theme-elevation-300: #cbd5e1;
+  --theme-elevation-400: #94a3b8;
+  --theme-elevation-500: #64748b;
+  --theme-elevation-600: #475569;
+  --theme-elevation-700: #334155;
+  --theme-elevation-800: #1f2937;
+  --theme-elevation-900: #0f172a;
+  --theme-elevation-1000: #0a0f1a;
+
+  --theme-bg: var(--theme-elevation-0);
+  --theme-text: var(--theme-elevation-900);
 }
 
 [data-theme='dark'] {
-  --medsite-brand: hsl(201 96% 50%);
-  --medsite-brand-hover: hsl(201 96% 60%);
-  --medsite-brand-soft: hsl(201 60% 18%);
-  --medsite-brand-ring: hsla(201, 96%, 50%, 0.35);
+  --color-success-500: #f8fafc;
+  --color-success-600: #ffffff;
+  --color-success-700: #ffffff;
+  --color-success-100: rgba(248, 250, 252, 0.10);
+
+  --medsite-link: #93c5fd;
+  --medsite-link-hover: #bfdbfe;
+  --medsite-focus-ring: rgba(248, 250, 252, 0.22);
+
+  --theme-elevation-0:   #0a0f1a;
+  --theme-elevation-50:  #0f172a;
+  --theme-elevation-100: #131c2f;
+  --theme-elevation-150: #1a2236;
+  --theme-elevation-200: #1f293b;
+  --theme-elevation-250: #283246;
+  --theme-elevation-300: #303d52;
+  --theme-elevation-400: #475569;
+  --theme-elevation-500: #64748b;
+  --theme-elevation-600: #94a3b8;
+  --theme-elevation-700: #cbd5e1;
+  --theme-elevation-800: #e2e8f0;
+  --theme-elevation-900: #f1f5f9;
+  --theme-elevation-1000: #ffffff;
+
+  --theme-bg: var(--theme-elevation-0);
+  --theme-text: var(--theme-elevation-900);
 }
 
 /* ================================================================
- * Base typography
+ * Base typography — sober, slightly tighter
  * ================================================================ */
 html,
 body {
-  font-family: var(--medsite-font-sans);
+  font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -60,14 +118,13 @@ h3,
 h4,
 h5,
 h6 {
-  letter-spacing: -0.01em;
+  letter-spacing: -0.015em;
+  font-weight: 600;
 }
 
 /* ================================================================
  * Layout — wide but not infinite
  * ================================================================ */
-
-/* Center document & list views with a comfortable max width. */
 .template-default__wrap > *,
 .collection-list,
 .dashboard,
@@ -76,14 +133,12 @@ h6 {
   margin-inline: auto;
 }
 
-/* When a doc has a sidebar, give the main column more horizontal room. */
 .document-fields--has-sidebar {
   .document-fields__main {
     width: calc(100% - var(--doc-sidebar-width) - 2rem);
   }
 }
 
-/* Inputs and select fields should always fill their column. */
 .field-type.text,
 .field-type.email,
 .field-type.number,
@@ -94,60 +149,219 @@ h6 {
 }
 
 /* ================================================================
- * Navigation
+ * Top-level shell — force backgrounds so chrome picks up our tones
  * ================================================================ */
-
-/* Active nav link — brand accent */
-.nav__link--active,
-.nav__link[aria-current='page'] {
-  color: var(--medsite-brand);
-  background: var(--medsite-brand-soft);
-  border-radius: var(--medsite-radius);
+body {
+  background: var(--theme-bg);
+  color: var(--theme-text);
 }
 
-.nav__link:hover {
-  color: var(--medsite-brand);
+.template-default {
+  /* Custom Nav slot doesn't trigger Payload's `--nav-hydrated` class, so on
+   * viewports <= 1440px the layout falls back to `display: block` and our
+   * sidebar pushes the main column 100vh down. Force grid layout and the
+   * correct two-column allocation regardless of media query / hydration. */
+  display: grid !important;
+  grid-template-columns: var(--nav-width, 260px) auto !important;
+  grid-template-rows: auto !important;
+  background-color: var(--theme-bg);
+  color: var(--theme-text);
+  min-height: 100vh;
+  position: relative;
+  isolation: isolate;
+}
+
+/* Keep the sidebar visible regardless of hydration class. The default SCSS
+ * hides `.nav` until `template-default--nav-hydrated` is applied, which our
+ * custom `<MedSiteNav>` never triggers. */
+.template-default .nav,
+.template-default > aside {
+  display: flex !important;
+}
+
+.template-default__wrap {
+  background-color: var(--theme-bg);
+  min-width: 0; /* allow grid cell to shrink instead of pushing siblings */
+}
+
+/* Hide the mobile hamburger toggler — our custom nav is always visible. */
+.template-default__nav-toggler-wrapper {
+  display: none !important;
+}
+
+/* Anchor content to the top — Payload's default reserved a header strip we
+ * don't render anymore. Reset the padding/margins on every standard
+ * top-level container. */
+.template-default__wrap {
+  padding-top: 0 !important;
+}
+
+.template-default__wrap > main,
+.template-default__wrap > section,
+.template-default__wrap > .dashboard,
+.template-default__wrap > .collection-list,
+.template-default__wrap > .render-fields {
+  padding-top: 0 !important;
+  margin-top: 0 !important;
+}
+
+.dashboard {
+  padding-block: 0 !important;
+  margin-block: 0 !important;
+}
+
+/* App header — collapse vertical footprint when empty. The default
+ * `--app-header-height` reserves ~70px we no longer need. */
+.app-header {
+  height: auto !important;
+  min-height: 0 !important;
+}
+
+.app-header__bg {
+  display: none !important;
 }
 
 /* ================================================================
- * Buttons
+ * Sidebar (`.nav`) — give it a quiet rail tone
+ * ================================================================ */
+.nav {
+  background: var(--theme-elevation-50);
+  border-right-color: var(--theme-elevation-100) !important;
+  border-left-color: var(--theme-elevation-100) !important;
+}
+
+.nav__scroll {
+  color: var(--theme-text);
+}
+
+/* Group labels (Mon site, Système…) */
+.nav-group__toggle,
+.nav__label {
+  color: var(--theme-elevation-500) !important;
+  font-size: 0.6875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+}
+
+/* Individual nav links (collections, globals) */
+.nav__link {
+  border-radius: var(--medsite-radius);
+  padding: 0.4375rem 0.75rem;
+  color: var(--theme-elevation-700);
+  font-weight: 500;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.nav__link:hover {
+  background: var(--theme-elevation-100);
+  color: var(--theme-text);
+}
+
+.nav__link--active,
+.nav__link[aria-current='page'] {
+  background: var(--theme-elevation-150);
+  color: var(--theme-text);
+  font-weight: 600;
+}
+
+/* Vertical accent indicator on the active link */
+.nav__link-indicator {
+  background: var(--theme-text) !important;
+}
+
+/* ================================================================
+ * Top header bar (`.app-header`) — match shell, subtle separator
+ * ================================================================ */
+.app-header__bg {
+  background: var(--theme-bg) !important;
+  border-bottom: 1px solid var(--theme-elevation-100);
+}
+
+.app-header__content {
+  color: var(--theme-text);
+}
+
+/* Breadcrumb / step nav: muted but readable */
+.step-nav,
+.step-nav a,
+.step-nav__home {
+  color: var(--theme-elevation-600);
+  font-size: 0.8125rem;
+  font-weight: 500;
+}
+
+.step-nav a:hover {
+  color: var(--theme-text);
+  text-decoration: none;
+}
+
+/* Account avatar / dropdown */
+.app-header__account {
+  color: var(--theme-text);
+}
+
+/* Mobile nav toggler */
+.nav-toggler {
+  color: var(--theme-text);
+}
+
+/* ================================================================
+ * Buttons — primary becomes near-black (light) / white (dark)
  * ================================================================ */
 .btn--style-primary {
-  background: var(--medsite-brand);
-  border-color: var(--medsite-brand);
-  color: #fff;
-  border-radius: var(--medsite-radius);
-  transition: background 0.15s ease, box-shadow 0.15s ease;
+  background: var(--theme-text);
+  border-color: var(--theme-text);
+  color: var(--theme-bg);
+  border-radius: var(--style-radius-m);
+  font-weight: 600;
+  transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
 
   &:hover,
   &:focus-visible {
-    background: var(--medsite-brand-hover);
-    border-color: var(--medsite-brand-hover);
+    background: var(--theme-elevation-800);
+    border-color: var(--theme-elevation-800);
+    color: var(--theme-bg);
   }
 
   &:focus-visible {
-    box-shadow: 0 0 0 3px var(--medsite-brand-ring);
+    box-shadow: 0 0 0 3px var(--medsite-focus-ring);
     outline: none;
   }
 }
 
 .btn--style-secondary {
-  border-radius: var(--medsite-radius);
-}
+  background: transparent;
+  border-color: var(--theme-elevation-200);
+  color: var(--theme-text);
+  border-radius: var(--style-radius-m);
+  font-weight: 500;
+  transition: background 0.15s ease, border-color 0.15s ease;
 
-/* ================================================================
- * Links
- * ================================================================ */
-a {
-  color: var(--medsite-brand);
-
-  &:hover {
-    color: var(--medsite-brand-hover);
+  &:hover,
+  &:focus-visible {
+    background: var(--theme-elevation-100);
+    border-color: var(--theme-elevation-300);
   }
 }
 
 /* ================================================================
- * Inputs — subtle polish, brand-tinted focus
+ * Links — single subtle blue accent (not the chrome)
+ * ================================================================ */
+a {
+  color: var(--medsite-link);
+  text-decoration: none;
+  transition: color 0.15s ease;
+
+  &:hover {
+    color: var(--medsite-link-hover);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+}
+
+/* ================================================================
+ * Inputs — fine borders, neutral focus
  * ================================================================ */
 input[type='text'],
 input[type='email'],
@@ -155,51 +369,109 @@ input[type='password'],
 input[type='number'],
 input[type='search'],
 input[type='url'],
+input[type='tel'],
 textarea,
+select,
 .rs__control {
-  border-radius: var(--medsite-radius);
+  border-radius: var(--style-radius-m);
+  border-color: var(--theme-elevation-200);
+  background: var(--theme-elevation-0);
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+input:hover,
+textarea:hover,
+.rs__control:hover {
+  border-color: var(--theme-elevation-300);
 }
 
 input:focus-visible,
 textarea:focus-visible,
+select:focus-visible,
 .rs__control--is-focused {
-  border-color: var(--medsite-brand) !important;
-  box-shadow: 0 0 0 3px var(--medsite-brand-ring) !important;
+  border-color: var(--theme-text) !important;
+  box-shadow: 0 0 0 3px var(--medsite-focus-ring) !important;
   outline: none;
 }
 
 /* ================================================================
- * Tables — comfortable row hover
+ * Tables — clean row hover
  * ================================================================ */
+.table {
+  border-radius: var(--medsite-radius);
+  overflow: hidden;
+}
+
+.table thead th {
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  color: var(--theme-elevation-600);
+  background: var(--theme-elevation-50);
+}
+
 .table tbody tr {
   transition: background 0.1s ease;
 
   &:hover {
-    background: var(--medsite-brand-soft);
+    background: var(--theme-elevation-50);
   }
 }
 
 /* ================================================================
- * Cards & surfaces
+ * Cards & surfaces — fine borders, subtle elevation on hover
  * ================================================================ */
 .card,
 .collapsible__content,
 .tabs-field__tabs,
-.group-field__wrap {
+.group-field__wrap,
+.collection-list__group,
+.dashboard__group {
   border-radius: var(--medsite-radius);
+  border: 1px solid var(--theme-elevation-100);
+  background: var(--theme-elevation-0);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.card:hover {
+  border-color: var(--theme-elevation-200);
+  box-shadow: 0 8px 24px -16px rgba(0, 0, 0, 0.12);
+}
+
+/* ================================================================
+ * Header & sidebar — calmer separation
+ * ================================================================ */
+.app-header,
+.nav {
+  border-color: var(--theme-elevation-100);
+}
+
+.nav {
+  background: var(--theme-elevation-50);
+}
+
+/* ================================================================
+ * Pills, badges, status chips — neutral on neutral
+ * ================================================================ */
+.pill,
+.status-pill {
+  border-radius: 999px;
+  font-weight: 500;
+  font-size: 0.75rem;
+  padding: 0.125rem 0.625rem;
 }
 
 /* ================================================================
  * Global focus ring (keyboard accessibility)
  * ================================================================ */
 :focus-visible {
-  outline-color: var(--medsite-brand);
+  outline-color: var(--theme-text);
   outline-offset: 2px;
 }
 
 /* ================================================================
- * Login screen — center + brand touch
+ * Login screen — centered, elevated card
  * ================================================================ */
 .login {
   .login__brand {
@@ -208,5 +480,15 @@ textarea:focus-visible,
 
   form {
     border-radius: calc(var(--medsite-radius) * 1.5);
+    border: 1px solid var(--theme-elevation-100);
+    background: var(--theme-elevation-0);
+    box-shadow: 0 24px 48px -32px rgba(0, 0, 0, 0.12);
   }
+}
+
+/* ================================================================
+ * Custom dashboard root — keep our hero generous
+ * ================================================================ */
+.dashboard {
+  padding-block: 0;
 }

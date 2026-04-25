@@ -3,6 +3,7 @@ import type { CollectionConfig } from 'payload'
 import { tenantIsolation } from '../access/tenant-isolation'
 import { autoSlugFromTitle } from '../hooks/slug'
 import { injectTenantId } from '../hooks/tenant-defaults'
+import { pageBlocks } from './_page-blocks/blocks'
 
 export const Pages: CollectionConfig = {
   slug: 'pages',
@@ -73,99 +74,24 @@ export const Pages: CollectionConfig = {
               ],
             },
             {
+              name: 'blockPicker',
+              type: 'ui',
+              label: '',
+              admin: {
+                components: {
+                  Field: '@/components/block-picker#BlockPicker',
+                },
+              },
+            },
+            {
               name: 'content',
               type: 'blocks',
               label: 'Contenu de la page',
-              blocks: [
-                // Hero
-                {
-                  slug: 'hero',
-                  labels: { singular: 'En-tête (hero)', plural: 'En-têtes' },
-                  fields: [
-                    { name: 'heading', type: 'text', required: true, label: 'Titre principal' },
-                    { name: 'subheading', type: 'text', label: 'Sous-titre' },
-                    { name: 'image', type: 'upload', relationTo: 'media', label: 'Image de fond' },
-                    { name: 'showBookingCta', type: 'checkbox', defaultValue: true, label: 'Afficher le bouton de RDV' },
-                  ],
-                },
-                // Rich text
-                {
-                  slug: 'richText',
-                  labels: { singular: 'Texte', plural: 'Textes' },
-                  fields: [
-                    { name: 'content', type: 'richText', required: true, label: 'Contenu' },
-                  ],
-                },
-                // Services grid
-                {
-                  slug: 'servicesGrid',
-                  labels: { singular: 'Grille d\'actes', plural: 'Grilles d\'actes' },
-                  fields: [
-                    { name: 'heading', type: 'text', label: 'Titre de la section', defaultValue: 'Nos actes' },
-                    { name: 'maxItems', type: 'number', label: 'Nombre d\'actes à afficher', defaultValue: 6 },
-                  ],
-                },
-                // Testimonials
-                {
-                  slug: 'testimonials',
-                  labels: { singular: 'Témoignages', plural: 'Témoignages' },
-                  fields: [
-                    { name: 'heading', type: 'text', label: 'Titre de la section', defaultValue: 'Témoignages' },
-                    { name: 'maxItems', type: 'number', label: 'Nombre de témoignages à afficher', defaultValue: 4 },
-                  ],
-                },
-                // FAQ
-                {
-                  slug: 'faq',
-                  labels: { singular: 'FAQ', plural: 'FAQ' },
-                  fields: [
-                    { name: 'heading', type: 'text', label: 'Titre de la section', defaultValue: 'Questions fréquentes' },
-                  ],
-                },
-                // Map
-                {
-                  slug: 'map',
-                  labels: { singular: 'Carte', plural: 'Cartes' },
-                  fields: [
-                    { name: 'heading', type: 'text', label: 'Titre de la section', defaultValue: 'Nous trouver' },
-                    { name: 'height', type: 'number', label: 'Hauteur (px)', defaultValue: 400 },
-                  ],
-                },
-                // Photo gallery
-                {
-                  slug: 'gallery',
-                  labels: { singular: 'Galerie photos', plural: 'Galeries photos' },
-                  fields: [
-                    { name: 'heading', type: 'text', label: 'Titre de la section' },
-                    { name: 'images', type: 'array', label: 'Photos', fields: [
-                      { name: 'image', type: 'upload', relationTo: 'media', required: true, label: 'Photo' },
-                      { name: 'caption', type: 'text', label: 'Légende' },
-                    ]},
-                  ],
-                },
-                // Doctolib CTA
-                {
-                  slug: 'doctolibCta',
-                  labels: { singular: 'Bouton Doctolib', plural: 'Boutons Doctolib' },
-                  fields: [
-                    { name: 'heading', type: 'text', label: 'Titre', defaultValue: 'Prendre rendez-vous' },
-                    { name: 'showWidget', type: 'checkbox', defaultValue: false, label: 'Afficher le calendrier Doctolib intégré' },
-                  ],
-                },
-                // Free HTML
-                {
-                  slug: 'freeHtml',
-                  labels: { singular: 'Bloc libre', plural: 'Blocs libres' },
-                  fields: [
-                    { name: 'html', type: 'code', required: true, label: 'Code HTML',
-                      admin: {
-                        language: 'html',
-                        description: 'Attention : ce contenu est injecté tel quel dans la page.',
-                      },
-                    },
-                  ],
-                },
-              ],
+              admin: {
+                description:
+                  'Composez votre page bloc par bloc. Utilisez « Insérer un bloc » ci-dessus pour parcourir la galerie avec aperçu.',
+              },
+              blocks: pageBlocks,
             },
           ],
         },

@@ -4,7 +4,7 @@ import { withPayload } from '@payloadcms/next/withPayload'
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
-  transpilePackages: ['@medsite/billing', '@medsite/config', '@medsite/db', '@medsite/email', '@medsite/types'],
+  transpilePackages: ['@medsite/billing', '@medsite/config', '@medsite/db', '@medsite/email', '@medsite/templates', '@medsite/types'],
   serverExternalPackages: ['prettier'],
   experimental: {
     reactCompiler: false,

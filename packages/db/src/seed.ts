@@ -7,10 +7,16 @@
  * Idempotent: truncates all tenant-scoped tables before reseeding.
  * Safe in dev only — DO NOT run against production.
  */
+import {
+  buildPresetPages,
+  registerBuiltInTemplates,
+} from '@medsite/templates'
 import { sql } from 'drizzle-orm'
 import { uuidv7 } from 'uuidv7'
 
 import { createDbClient } from './index'
+
+registerBuiltInTemplates()
 import {
   addresses,
   blogPosts,
@@ -44,6 +50,28 @@ const db = createDbClient(databaseUrl)
 
 function newId(): string {
   return uuidv7()
+}
+
+/**
+ * Materialises a template's preset pages for a tenant. Each preset becomes
+ * one published `pages` row with its sections in the `content` jsonb field
+ * — directly renderable by `apps/web`'s `SectionRenderer` via `/p/<slug>`.
+ */
+async function seedPresetPages(tenantId: string, templateId: string) {
+  const descriptors = buildPresetPages(templateId)
+  await db.insert(pages).values(
+    descriptors.map((d) => ({
+      tenantId,
+      title: d.title,
+      slug: d.slug,
+      pageType: d.pageType as never,
+      content: d.content,
+      isPublished: true,
+      isDraft: false,
+      publishedAt: new Date(),
+      sortOrder: d.sortOrder,
+    })),
+  )
 }
 
 /** Standard Mon-Fri 9-18, closed weekends. */
@@ -198,38 +226,7 @@ async function seedDrMartin(proPlanId: string) {
     },
   ])
 
-  await db.insert(pages).values([
-    {
-      tenantId,
-      title: 'Accueil',
-      slug: 'accueil',
-      pageType: 'home',
-      isPublished: true,
-      isDraft: false,
-      publishedAt: new Date(),
-      sortOrder: 0,
-    },
-    {
-      tenantId,
-      title: 'À propos',
-      slug: 'a-propos',
-      pageType: 'about',
-      isPublished: true,
-      isDraft: false,
-      publishedAt: new Date(),
-      sortOrder: 1,
-    },
-    {
-      tenantId,
-      title: 'Contact',
-      slug: 'contact',
-      pageType: 'contact',
-      isPublished: true,
-      isDraft: false,
-      publishedAt: new Date(),
-      sortOrder: 2,
-    },
-  ])
+  await seedPresetPages(tenantId, 'medical-classic')
 
   await db.insert(faqItems).values([
     {
@@ -261,7 +258,7 @@ async function seedDrMartin(proPlanId: string) {
 
   await db.insert(siteSettings).values({
     tenantId,
-    templateId: 'specialist',
+    templateId: 'medical-classic',
     primaryColor: '#0F766E',
     secondaryColor: '#E0F2F1',
     fontHeading: 'Source Serif Pro',
@@ -370,28 +367,7 @@ async function seedCabinetDupont(essentialPlanId: string) {
     },
   ])
 
-  await db.insert(pages).values([
-    {
-      tenantId,
-      title: 'Accueil',
-      slug: 'accueil',
-      pageType: 'home',
-      isPublished: true,
-      isDraft: false,
-      publishedAt: new Date(),
-      sortOrder: 0,
-    },
-    {
-      tenantId,
-      title: 'Présentation',
-      slug: 'presentation',
-      pageType: 'about',
-      isPublished: true,
-      isDraft: false,
-      publishedAt: new Date(),
-      sortOrder: 1,
-    },
-  ])
+  await seedPresetPages(tenantId, 'family-practice')
 
   await db.insert(faqItems).values([
     {
@@ -439,7 +415,7 @@ async function seedCabinetDupont(essentialPlanId: string) {
 
   await db.insert(siteSettings).values({
     tenantId,
-    templateId: 'paramedical',
+    templateId: 'family-practice',
     primaryColor: '#1E40AF',
     secondaryColor: '#DBEAFE',
     fontHeading: 'Inter',
@@ -549,38 +525,7 @@ async function seedEmilieRousseau(essentialPlanId: string) {
     },
   ])
 
-  await db.insert(pages).values([
-    {
-      tenantId,
-      title: 'Accueil',
-      slug: 'accueil',
-      pageType: 'home',
-      isPublished: true,
-      isDraft: false,
-      publishedAt: new Date(),
-      sortOrder: 0,
-    },
-    {
-      tenantId,
-      title: 'Qui suis-je',
-      slug: 'qui-suis-je',
-      pageType: 'about',
-      isPublished: true,
-      isDraft: false,
-      publishedAt: new Date(),
-      sortOrder: 1,
-    },
-    {
-      tenantId,
-      title: 'Contact',
-      slug: 'contact',
-      pageType: 'contact',
-      isPublished: true,
-      isDraft: false,
-      publishedAt: new Date(),
-      sortOrder: 2,
-    },
-  ])
+  await seedPresetPages(tenantId, 'warm-wellness')
 
   await db.insert(faqItems).values([
     {
@@ -612,7 +557,7 @@ async function seedEmilieRousseau(essentialPlanId: string) {
 
   await db.insert(siteSettings).values({
     tenantId,
-    templateId: 'wellness',
+    templateId: 'warm-wellness',
     primaryColor: '#B45309',
     secondaryColor: '#FEF3C7',
     fontHeading: 'Source Serif Pro',

@@ -18,6 +18,7 @@
     "@medsite/db": "workspace:*",
     "@medsite/doctolib": "workspace:*",
     "@medsite/seo": "workspace:*",
+    "@medsite/templates": "workspace:*",
     "@medsite/types": "workspace:*",
     "@medsite/ui": "workspace:*",
     "drizzle-orm": "^0.38.4",

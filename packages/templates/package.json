@@ -1,0 +1,38 @@
+{
+  "name": "@medsite/templates",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./theme": "./src/theme/index.ts",
+    "./blocks": "./src/blocks/index.ts",
+    "./themes": "./src/themes/index.ts",
+    "./picker": "./src/picker.tsx"
+  },
+  "scripts": {
+    "lint": "eslint src --max-warnings 0",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "clean": "rimraf .turbo dist"
+  },
+  "dependencies": {
+    "@medsite/ui": "workspace:*",
+    "zod": "^3.24.1"
+  },
+  "peerDependencies": {
+    "react": "^19.0.0"
+  },
+  "devDependencies": {
+    "@medsite/config": "workspace:*",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.1.0",
+    "@types/react": "^19.0.0",
+    "eslint": "^9.18.0",
+    "jsdom": "^25.0.1",
+    "react": "^19.0.0",
+    "typescript": "^5.7.3",
+    "vitest": "^2.1.8"
+  }
+}

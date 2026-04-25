@@ -11,14 +11,19 @@ const nextConfig: NextConfig = {
     '@medsite/db',
     '@medsite/doctolib',
     '@medsite/seo',
+    '@medsite/templates',
     '@medsite/types',
     '@medsite/ui',
   ],
   images: {
     formats: ['image/avif', 'image/webp'],
-    remotePatterns: r2Hostname
-      ? [{ protocol: 'https', hostname: r2Hostname }]
-      : [],
+    remotePatterns: [
+      // Preset seed images live on Unsplash until practitioners upload their
+      // own to R2 (chantier 07). Without this entry, every seeded page errors
+      // out because next/image refuses unknown remote hosts.
+      { protocol: 'https', hostname: 'images.unsplash.com' },
+      ...(r2Hostname ? [{ protocol: 'https' as const, hostname: r2Hostname }] : []),
+    ],
   },
   experimental: {
     typedRoutes: true,

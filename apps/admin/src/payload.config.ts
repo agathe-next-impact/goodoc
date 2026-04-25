@@ -48,7 +48,12 @@ export default buildConfig({
         Logo: '@/components/brand/logo#Logo',
         Icon: '@/components/brand/icon#Icon',
       },
-      afterDashboard: ['@/components/practitioner-dashboard#PractitionerDashboard'],
+      Nav: '@/components/nav/medsite-nav#MedSiteNav',
+      providers: ['@/components/tenant-palette#TenantPalette'],
+      afterDashboard: [
+        '@/components/practitioner-dashboard#PractitionerDashboard',
+        '@/components/template-gallery#TemplateGallery',
+      ],
     },
   },
   collections: [
@@ -71,6 +76,13 @@ export default buildConfig({
     outputFile: path.resolve(dirname, 'payload-types.ts'),
   },
   db: postgresAdapter({
+    // Dev only: let Payload auto-sync its internal tables (versions,
+    // payload-locked-documents, payload-preferences, payload-migrations).
+    // Required because our Drizzle schema in @medsite/db doesn't include
+    // these — Payload manages them via its own adapter. In production
+    // we'll generate proper migrations with `payload migrate:create`.
+    // TEMP: disabled — schema diverges and the interactive prompt blocks
+    // boot in non-TTY contexts. Re-enable once enums are reconciled.
     push: false,
     idType: 'uuid',
     pool: {

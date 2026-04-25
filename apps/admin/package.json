@@ -9,6 +9,7 @@
     "lint": "next lint --max-warnings 0",
     "typecheck": "tsc --noEmit",
     "generate:types": "payload generate:types",
+    "generate:importmap": "payload generate:importmap",
     "clean": "rimraf .turbo .next"
   },
   "dependencies": {
@@ -16,11 +17,13 @@
     "@medsite/config": "workspace:*",
     "@medsite/db": "workspace:*",
     "@medsite/email": "workspace:*",
+    "@medsite/templates": "workspace:*",
     "@medsite/types": "workspace:*",
     "@payloadcms/db-postgres": "3.11.0",
     "@payloadcms/next": "3.11.0",
     "@payloadcms/richtext-lexical": "3.11.0",
     "@payloadcms/storage-s3": "3.11.0",
+    "@payloadcms/ui": "3.11.0",
     "cross-env": "^7.0.3",
     "drizzle-orm": "^0.38.4",
     "graphql": "^16.10.0",
@@ -28,7 +31,8 @@
     "payload": "3.11.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "sharp": "0.33.5"
+    "sharp": "0.33.5",
+    "zod": "^3.24.1"
   },
   "devDependencies": {
     "@types/node": "^22.10.5",

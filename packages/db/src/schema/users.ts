@@ -1,3 +1,4 @@
+import { sql } from 'drizzle-orm'
 import {
   index,
   integer,
@@ -33,6 +34,7 @@ export const users = pgTable(
   {
     id: uuid('id')
       .primaryKey()
+      .default(sql`gen_random_uuid()`)
       .$defaultFn(() => uuidv7()),
 
     // Custom fields (from apps/admin/src/collections/Users.ts)
