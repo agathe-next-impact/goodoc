@@ -5,6 +5,8 @@ import { autoSlugFromTitle } from '../hooks/slug'
 import { injectTenantId } from '../hooks/tenant-defaults'
 import { pageBlocks } from './_page-blocks/blocks'
 
+const WEB_URL = process.env.NEXT_PUBLIC_WEB_URL ?? 'http://localhost:3003'
+
 export const Pages: CollectionConfig = {
   slug: 'pages',
   labels: { singular: 'Page', plural: 'Pages' },
@@ -14,6 +16,18 @@ export const Pages: CollectionConfig = {
     description:
       'Les pages de votre site. Personnalisez le contenu de chaque page avec des blocs.',
     group: 'Mon site',
+    livePreview: {
+      url: ({ data }) => {
+        const slug = typeof data?.slug === 'string' ? data.slug : ''
+        const secret = process.env.PREVIEW_SECRET ?? ''
+        return `${WEB_URL}/api/preview?secret=${encodeURIComponent(secret)}&slug=${encodeURIComponent(slug)}`
+      },
+      breakpoints: [
+        { name: 'mobile', label: 'Mobile', width: 375, height: 667 },
+        { name: 'tablet', label: 'Tablette', width: 768, height: 1024 },
+        { name: 'desktop', label: 'Desktop', width: 1440, height: 900 },
+      ],
+    },
   },
   access: {
     read: tenantIsolation,

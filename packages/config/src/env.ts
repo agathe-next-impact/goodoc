@@ -10,6 +10,11 @@ const envSchema = z.object({
 
   // Public URL
   NEXT_PUBLIC_APP_URL: z.string().url(),
+  // Public web + admin origins used by Payload Live Preview (chantier #02).
+  // Optional during boot to keep `next build` green when preview isn't wired.
+  NEXT_PUBLIC_WEB_URL: z.string().url().optional(),
+  NEXT_PUBLIC_ADMIN_URL: z.string().url().optional(),
+  PREVIEW_SECRET: z.string().min(32).optional(),
 
   // Database
   DATABASE_URL: z.string().url(),
