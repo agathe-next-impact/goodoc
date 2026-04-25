@@ -1,11 +1,24 @@
-import type { GlobalConfig } from 'payload'
+import type { CollectionConfig } from 'payload'
 
 import { tenantIsolation } from '../access/tenant-isolation'
+import { injectTenantId } from '../hooks/tenant-defaults'
 
-export const SiteSettings: GlobalConfig = {
+/**
+ * Tenant-scoped site settings (1:1 with tenants via UNIQUE(tenant_id) at the
+ * DB level). Modeled as a Collection rather than a Global because the
+ * underlying `site_settings` table holds one row per tenant — Payload Globals
+ * are single-document by design and would silently read/write the wrong
+ * tenant's row in a multi-tenant deployment.
+ *
+ * UX note: each practitioner sees exactly one entry (their own) thanks to
+ * `tenantIsolation`. Super-admins see all entries.
+ */
+export const SiteSettings: CollectionConfig = {
   slug: 'site-settings',
-  label: 'Réglages du site',
+  labels: { singular: 'Réglages du site', plural: 'Réglages du site' },
   admin: {
+    useAsTitle: 'templateId',
+    defaultColumns: ['templateId', 'primaryColor', 'updatedAt'],
     description:
       'Personnalisez l\'apparence, les couleurs et les liens de votre site.',
     group: 'Mon site',
@@ -13,6 +26,11 @@ export const SiteSettings: GlobalConfig = {
   access: {
     read: tenantIsolation,
     update: tenantIsolation,
+    create: tenantIsolation,
+    delete: () => false,
+  },
+  hooks: {
+    beforeChange: [injectTenantId],
   },
   fields: [
     {
@@ -189,7 +207,7 @@ export const SiteSettings: GlobalConfig = {
         },
       ],
     },
-    // Hidden
+    // Hidden auto-computed fields
     {
       name: 'logoUrl',
       type: 'text',

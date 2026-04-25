@@ -17,9 +17,9 @@ import { OpeningHours } from './collections/OpeningHours'
 import { Pages } from './collections/Pages'
 import { Practitioners } from './collections/Practitioners'
 import { Services } from './collections/Services'
+import { SiteSettings } from './collections/SiteSettings'
 import { Testimonials } from './collections/Testimonials'
 import { Users } from './collections/Users'
-import { SiteSettings } from './globals/SiteSettings'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -70,8 +70,8 @@ export default buildConfig({
     Addresses,
     OpeningHours,
     Media,
+    SiteSettings,
   ],
-  globals: [SiteSettings],
   editor: lexicalEditor(),
   secret: payloadSecret,
   typescript: {

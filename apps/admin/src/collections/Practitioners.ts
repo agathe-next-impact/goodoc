@@ -9,6 +9,7 @@ import {
   generateSpecialtySlugHook,
   mapSchemaOrgTypeHook,
 } from '../hooks/specialty'
+import { injectTenantId } from '../hooks/tenant-defaults'
 
 export const Practitioners: CollectionConfig = {
   slug: 'practitioners',
@@ -23,11 +24,12 @@ export const Practitioners: CollectionConfig = {
   access: {
     read: tenantIsolation,
     update: tenantIsolation,
-    create: superAdminOnly,
+    create: tenantIsolation,
     delete: superAdminOnly,
   },
   hooks: {
     beforeChange: [
+      injectTenantId,
       extractDoctolibSlugHook,
       computeBookingModeHook,
       generateSpecialtySlugHook,

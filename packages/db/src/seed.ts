@@ -603,7 +603,13 @@ async function main() {
   console.warn('[seed] inserting Émilie Rousseau (sophrologue, Clermont)…')
   await seedEmilieRousseau(essentialId)
 
+  // Truncating `users` here would orphan the Payload session of the dev who
+  // ran the seed. We seed users separately via `pnpm db:seed:users` (Payload
+  // Local API, pbkdf2-hashed). Use `pnpm db:seed:full` to chain both.
   console.warn('[seed] done ✓')
+  console.warn(
+    '[seed] next: run `pnpm db:seed:users` to create Payload auth accounts',
+  )
   process.exit(0)
 }
 

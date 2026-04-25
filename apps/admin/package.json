@@ -14,6 +14,7 @@
     "payload:migrate:create": "cross-env NODE_OPTIONS=\"--no-deprecation --import tsx\" payload migrate:create",
     "payload:migrate": "cross-env NODE_OPTIONS=\"--no-deprecation --import tsx\" payload migrate",
     "payload:migrate:status": "cross-env NODE_OPTIONS=\"--no-deprecation --import tsx\" payload migrate:status",
+    "seed:users": "cross-env NODE_OPTIONS=\"--no-deprecation --import tsx\" tsx --env-file-if-exists=../../.env.local src/scripts/seed-users.ts",
     "clean": "rimraf .turbo .next"
   },
   "dependencies": {

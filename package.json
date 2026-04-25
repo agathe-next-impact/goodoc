@@ -18,6 +18,8 @@
     "db:generate": "turbo run db:generate --filter=@medsite/db",
     "db:migrate": "turbo run db:migrate --filter=@medsite/db",
     "db:seed": "turbo run db:seed --filter=@medsite/db",
+    "db:seed:users": "pnpm --filter @medsite/admin seed:users",
+    "db:seed:full": "pnpm db:seed && pnpm db:seed:users",
     "clean": "turbo run clean && rimraf node_modules"
   },
   "devDependencies": {

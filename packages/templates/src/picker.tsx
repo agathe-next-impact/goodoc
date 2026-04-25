@@ -1,4 +1,4 @@
-import type { ComponentType } from 'react'
+import type { ComponentType, ReactNode } from 'react'
 
 /**
  * Block picker entries — the source of truth for the in-admin block gallery.
@@ -37,7 +37,7 @@ export type BlockPickerEntry = {
 
 const VB = '0 0 320 200' as const
 
-function Preview({ children }: { children: React.ReactNode }) {
+function Preview({ children }: { children: ReactNode }) {
   return (
     <svg
       viewBox={VB}
