@@ -128,6 +128,26 @@ export async function getPublishedPageBySlug(tenantId: string, slug: string) {
   )()
 }
 
+/**
+ * Reads the latest version of a page (published OR draft). Only callable
+ * from RSCs running with `draftMode()` enabled — otherwise it would leak
+ * unpublished content to the public. The route handler is responsible for
+ * gating on `isEnabled` before invoking this; here we trust the caller to
+ * keep the flag check upstream so the function stays composable in tests.
+ *
+ * Bypasses `unstable_cache` deliberately: stale draft content is worse
+ * than the extra DB hit for an authenticated practitioner editing in real
+ * time.
+ */
+export async function getPageDraftBySlug(tenantId: string, slug: string) {
+  const rows = await db()
+    .select()
+    .from(pages)
+    .where(and(eq(pages.tenantId, tenantId), eq(pages.slug, slug)))
+    .limit(1)
+  return rows[0] ?? null
+}
+
 // ── Testimonials ──────────────────────────────────────────────────
 
 export async function getPublishedTestimonials(tenantId: string, limit = 6) {
