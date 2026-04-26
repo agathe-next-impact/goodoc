@@ -15,6 +15,10 @@ export type { BillingService } from './billing-service'
 export { createWebhookHandler } from './webhook-handler'
 export type { WebhookHandler } from './webhook-handler'
 
+// Customer portal (self-service)
+export { createCustomerPortalSession } from './customer-portal'
+export type { CustomerPortalParams } from './customer-portal'
+
 // Types
 export type {
   CheckoutParams,

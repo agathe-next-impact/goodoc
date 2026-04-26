@@ -1,9 +1,11 @@
+import './globals.css'
+
 import type { Metadata } from 'next'
 import type { ReactNode } from 'react'
 
 export const metadata: Metadata = {
-  title: 'MedSite Platform',
-  description: 'Super admin — MedSite internal operations.',
+  title: 'MedSite — Mon espace praticien',
+  description: 'Gérez votre site, vos messages et votre abonnement.',
 }
 
 export default function RootLayout({

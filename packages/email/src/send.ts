@@ -92,6 +92,26 @@ export function createEmailService(resend: Resend) {
           SiteSuspendedEmail({ name, reactivateUrl }),
         ),
       ),
+
+    sendSupportRequest: (
+      to: string,
+      props: {
+        practitionerName: string
+        practitionerEmail: string
+        tenantName: string
+        tenantSlug: string
+        planName: string
+        subject: string
+        message: string
+      },
+    ) =>
+      import('./templates/support-request').then(({ SupportRequestEmail }) =>
+        send(
+          to,
+          `[Support] ${props.subject} — ${props.tenantName}`,
+          SupportRequestEmail(props),
+        ),
+      ),
   }
 }
 

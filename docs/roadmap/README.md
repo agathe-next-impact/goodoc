@@ -26,12 +26,12 @@
 
 | # | Chantier | Estimation | Fichier |
 |---|----------|------------|---------|
-| 23 | **Accès praticien aux collections Payload** | 1,5 j | [23-acces-praticien-payload.md](23-acces-praticien-payload.md) |
-| 00 | **Cadrage élargi `apps/platform`** | 3 j | [00-platform-scope.md](00-platform-scope.md) |
+| 23 | ✅ **Accès praticien aux collections Payload** | 1,5 j | [23-acces-praticien-payload.md](23-acces-praticien-payload.md) |
+| 00 | ✅ **Cadrage élargi `apps/platform`** | 3 j | [00-platform-scope.md](00-platform-scope.md) |
 
-> 🛑 **#23** — sans seed users + endpoint signup, aucun praticien ne voit ses Actes / Pages / Horaires / Médias / Profil / Réglages dans Payload. Le code est en place, le câblage user↔tenant manque. **À faire en premier**.
+> ✅ **#23** — livré (commit `c239223`).
 >
-> 🛑 **#00** — `apps/platform` n'est qu'un placeholder ("Implementation to come."). Tant qu'il n'y a pas de dashboard pour le praticien post-inscription, l'onboarding n'a nulle part où le renvoyer. **Indispensable pour ouvrir aux early adopters**.
+> ✅ **#00** — livré (2026-04-26) : auth Payload partagée, dashboard, messages, abonnement Stripe, paramètres, support, login/logout. Voir `apps/platform/src/app/(app)/`.
 >
 > Voir aussi les entrées Critical de [`docs/tech-debt.md`](../tech-debt.md).
 
